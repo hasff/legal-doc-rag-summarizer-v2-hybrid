@@ -124,6 +124,8 @@ genuinely unusual or significantly disadvantageous compared to industry standard
 
 def ask_claude(system: str, query: str, prefill= False) -> str:
 
+    print("🤖🌐 Claude here - happy to answer!")
+
     msgs = [{"role": "user", "content": query}]
 
     # put words in claude's mouth
@@ -145,6 +147,9 @@ def ask_claude(system: str, query: str, prefill= False) -> str:
     return  ("{" if prefill else "") + response.content[0].text  
 
 def ask_local_llm(system: str, query: str, prefill= False) -> str:
+
+    print("🤖📍 Local LLM here - happy to answer!")
+
     msgs = [
         {"role": "system", "content": system},
         {"role": "user", "content": query},
