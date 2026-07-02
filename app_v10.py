@@ -116,7 +116,7 @@ def hybrid_retrieve(query: str, chunks: list[str], embeddings: list[list[float]]
     return [chunks[i] for i in best_indices]
 
 
-# 🤖── Claude calls ────────────────────────────────────────────────────────────
+# 🤖── LLM calls ────────────────────────────────────────────────────────────
 SYSTEM_CONTRACT = """You are a legal analyst specialising in contracts and terms of service.
 Your job is to help users understand documents in plain, clear language.
 Be precise, cite specific clauses when relevant, and only flag clauses that are
@@ -169,7 +169,7 @@ def ask_llm(system: str, query: str, prefill= False) -> str:
     return ask_local_llm(system, query, prefill)
 
 
-# 🤖── Claude calls - actions ────────────────────────────────────────────────────
+# 🤖── LLM calls - actions ────────────────────────────────────────────────────
 def compute_danger_score(chunks: list[str]) -> dict:
     sample = "\n\n---\n\n".join(chunks[:20])
     prompt = f"""Analyse these contract excerpts and return a JSON object with:
@@ -294,8 +294,8 @@ def run_cli_tests():
 
 
 
-    # # 1)
-    # _test_compute_danger_score(pdf_text_chunks)
+    # 1)
+    _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
     question = "What the document is about?"
