@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ollama Local LLM Demo</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+  input { width: 70%; padding: 8px; }
+  button { padding: 8px 16px; }
+  p#output { margin-top: 20px; white-space: pre-wrap; border: 1px solid #ccc; padding: 12px; min-height: 40px; }
+</style>
+</head>
+<body>
+
+<h2>Ask the local model</h2>
+<input id="userInput" type="text" placeholder="Type your question...">
+<button onclick="send()">Send</button>
+
+<p id="output"></p>
+
+<script>
+async function askLocalLLM(system, query) {
+  const response = await fetch("http://localhost:11434/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "llama3.2:1b",
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: query },
+      ],
+      stream: false,
+    }),
+  });
+
+  const data = await response.json();
+  return data.message.content;
+}
+
+async function send() {
+  const query = document.getElementById("userInput").value;
+  const output = document.getElementById("output");
+  output.textContent = "Thinking...";
+
+  try {
+    const answer = await askLocalLLM("You are a helpful assistant.", query);
+    output.textContent = answer;
+  } 
+  catch (err) {
+    output.textContent = "Error: " + err.message + " (is Ollama running on localhost:11434?)";
+  }
+}
+</script>
+
+</body>
+</html>

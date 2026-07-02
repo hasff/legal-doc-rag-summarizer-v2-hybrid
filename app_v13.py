@@ -3,6 +3,7 @@ import os
 import math
 import re
 import json
+import requests
 
 # PDF Reader
 import pdfplumber
@@ -147,7 +148,7 @@ def ask_claude(system: str, query: str, prefill= False) -> str:
     # "{" + '"score": 7, "summary": "...", "red_flags": [...]}'
     return  ("{" if prefill else "") + response.content[0].text  
 
-def ask_local_llm(system: str, query: str, prefill= False) -> str:
+def ask_local_llm_v1(system: str, query: str, prefill= False) -> str:
 
     print("🤖📍 Local LLM here - happy to answer!")
 
@@ -163,6 +164,27 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
     )
 
     return response["message"]["content"]
+
+def ask_local_llm(system: str, query: str, prefill=False) -> str:
+   
+    print("🤖📍 Local LLM here - happy to answer!")
+
+    msgs = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": query},
+    ]    
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": msgs,
+        "stream": False,
+    }
+    if prefill:
+        payload["format"] = "json"
+
+    response = requests.post("http://localhost:11434/api/chat", json=payload)
+    response.raise_for_status()
+    return response.json()["message"]["content"]
 
 # router
 def ask_llm(system: str, query: str, prefill= False) -> str:
@@ -374,7 +396,7 @@ def run_cli_tests():
 
 
     # 1)
-    _test_compute_danger_score(pdf_text_chunks)
+    # _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
     question = "What the document is about?"
