@@ -266,7 +266,7 @@ def run_cli_tests():
 
 
     # # 1)
-    # _test_compute_danger_score(pdf_text_chunks)
+    _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
     question = "What the document is about?"
