@@ -10,7 +10,7 @@
 
 TODO: narrative intro, to be written together. Suggest a short scenario the reader can relate to (a wall of legal text, no easy way through it).
 
-TODO: add a screenshot if available.
+![Legal Doc Analyser](assets/intro/screenshot_intro.jpg)
 
 ---
 
@@ -362,6 +362,44 @@ From here, we're ready to see how to run a local LLM and replace the Claude call
 ### Theory
 
 Before building anything clever, Part 02 sets a baseline: `ask_llm` calls `ask_local_llm`, which talks to `llama3.2:1b` through Ollama, directly, with no routing and no fallback to Claude. The point is to see, honestly, what a small local model can and cannot do on its own.
+
+Ollama is a tool that runs open weight LLMs on your own machine. It handles downloading the model, loading it into memory, and exposing a local API you can call from code, no cloud, no API key, no internet required once the model is downloaded.
+
+### Watch this 7 minute video from IBM - What is Ollama? Running Local LLMs Made Simple
+[![Watch from IBM - What is Ollama? Running Local LLMs Made Simple](https://img.youtube.com/vi/5RIOQuHOihY/maxresdefault.jpg)](https://youtu.be/5RIOQuHOihY)
+
+---
+
+### Install Ollama
+
+Before running any code, you'll need Ollama installed on your machine.
+
+1. Go to [ollama.com](https://ollama.com) and download the installer for your OS and install it.
+2. Open a terminal and pull the model:
+
+```bash
+ollama pull llama3.2:1b
+```
+
+**About the name:** `llama3.2` is the model family and version. The `1b` means 1 billion parameters, one of the smallest models Ollama offers, small enough to run on a laptop CPU with no dedicated GPU.
+
+3. Confirm the model is installed:
+
+```bash
+ollama list
+```
+
+4. Run it directly from the terminal:
+
+```bash
+ollama run llama3.2:1b
+```
+
+This drops you into an interactive chat with the model. Type `/bye` to exit.
+
+**Try it:** ask something simple like `Hello, who are you?` or `What is 2 + 2?` to confirm it responds.
+
+![Ollama Hellow World](assets/part_02/screenshot_ollama_hello_world.jpg)
 
 ---
 
