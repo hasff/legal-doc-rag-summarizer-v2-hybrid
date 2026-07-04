@@ -124,7 +124,7 @@ Welcome. This project starts from an already working legal document assistant (t
 ### 1. Clone the repository
 
 ```bash
-git clone <repo>
+git clone https://github.com/hasff/legal-doc-rag-summarizer-v2-hybrid.git
 cd legal-doc-rag-summarizer-v2-hybrid
 ```
 
@@ -152,13 +152,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Pull the local model
-
-```bash
-ollama pull llama3.2:1b
-```
-
-### 5. Configure environment variables
+### 4. Configure environment variables
 
 ```bash
 cp .env.example .env
@@ -215,9 +209,13 @@ legal-doc-rag-summarizer-v2-hybrid/
 
 ### Theory
 
+**🔁 Coming from v1?** <br>
 If you came from the first tutorial, you had `app_v7.py`, which had a `__main__` block for testing, and `app_v8.py`, which wrapped everything in a Streamlit UI without that test block. `app_v9.py` merges the two: one file that can run as a CLI test, or as a Streamlit app, depending on how it is launched.
 
-If you are new here: this app answers questions about a legal document, gives it a danger score, and rewrites confusing clauses in plain English. Part 01 is about the plumbing that lets you test that logic from the terminal and serve it through a UI, without duplicating code.
+**🆕 Starting here?** <br>
+If you are new here: this app answers questions about a legal document, gives it a danger score, and rewrites confusing clauses in plain English. Part 01 is about the plumbing that lets you test that logic from the terminal and serve it through a Streamlit App, without duplicating code.
+
+> 💡 Why one file instead of a separate `rag_core.py` module? More on that in the Code Walkthrough below.
 
 ---
 
@@ -225,9 +223,44 @@ If you are new here: this app answers questions about a legal document, gives it
 
 > 📄 **File:** `app_v9.py`
 
-The key decision here is detecting whether the script is running inside the Streamlit server or not, using `streamlit.runtime.exists()`. When it returns `False`, the script runs in CLI test mode. When it returns `True`, it runs the Streamlit UI.
+> ⚠️ Make sure you've installed the requirements and added your Anthropic API key to `.env`, as covered in [Setup ⬆️](#setup_). Without it, the Claude calls in this file won't work.
 
-Heavy, reusable resources such as the SentenceTransformer embeddings model are loaded through a function decorated with `@st.cache_resource`:
+Note: `app_v9.py` is the result of merging `app_v7.py` and `app_v8.py`.
+
+Before merging, `app_v7.py` had its own `__main__` block for CLI testing, and `app_v8.py` wrapped the same RAG logic in a Streamlit UI. <br>
+The problem: Streamlit apps also run through `__main__`, so simply combining both files meant launching Streamlit would unintentionally trigger the CLI test block too.
+
+`app_v9.py` solves this by merging both entry points into one file, while keeping the underlying RAG core untouched. The key decision is detecting whether the script is running inside the Streamlit server, using `streamlit.runtime.exists()`. When it returns `False`, the script runs in CLI test mode. When it returns `True`, it runs the Streamlit UI.
+
+```python
+# ─────────────────────────────────────────────
+# 🚀 ENTRY POINT - RUN
+# ─────────────────────────────────────────────
+# `python app_v9.py`      -> runs CLI tests (like the old app_v7.py)
+# `streamlit run app_v9.py` -> runs the Streamlit UI (like the old app_v8.py)
+# streamlit.runtime.exists() tells these two cases apart, since Streamlit
+# also sets __name__ == "__main__" internally.
+if __name__ == "__main__":
+    if st_runtime_exists(): # alias for streamlit.runtime.exists()
+        run_streamlit_app() 
+    else:
+        run_cli_tests()
+```
+
+Where:
+- `run_streamlit_app()`: runs all the logic related to streamlit 
+- `run_cli_tests()`: runs the CLI tests
+
+<br>
+
+There's also another important adjustment.
+
+**🔁 Coming from v1?** <br>
+Back in `app_v8.py`, every Streamlit rerun reloaded the embeddings model from scratch. It wasn't a big deal then. We just wanted to see it working, so a bit of reload overhead went unnoticed. Here in `app_v9.py`, `@st.cache_resource` is introduced to fix that. The model now loads once and survives reruns.
+
+**🆕 Starting here?** <br> 
+Heavy, reusable resources such as the SentenceTransformer embeddings model are loaded through a function decorated with `@st.cache_resource`.
+
 
 ```python
 @st.cache_resource
@@ -237,7 +270,17 @@ def get_embeddings_model():
 
 Streamlit reruns the whole script on every interaction. Without caching, that would mean reloading model weights on every click, slow and unnecessary. `st.cache_resource` makes sure the model is created once per process and shared across sessions.
 
-Worth noting: `st.cache_resource` works correctly even outside the Streamlit runtime, in plain CLI mode. So there is no need for conditional logic around `runtime.exists()` just to decide how the model gets loaded. The same cached function serves both modes.
+In practice, this means any function that needs the model just calls `get_embeddings_model()` again. Streamlit's caching returns the same instance instead of recreating it.
+
+```python
+def embed_texts(texts: list[str]) -> list[list[float]]:
+    return get_embeddings_model().encode(texts).tolist()
+
+def embed_query(query: str) -> list[float]:
+    return get_embeddings_model().encode([query]).tolist()[0]
+```
+
+Worth noting: `st.cache_resource` works correctly even outside the Streamlit runtime, in plain CLI mode. So there is no need for conditional logic around `st_runtime_exists()` just to decide how the model gets loaded. The same cached function serves both modes.
 
 The working rule used throughout this project:
 
@@ -251,6 +294,8 @@ The working rule used throughout this project:
 > The ideal setup would separate the core logic (chunking, embeddings, retrieval, Claude calls) into its own module, for example `rag_core.py`, with thin CLI and Streamlit files that just import from it. That respects separation of concerns and scales better for a real project.
 >
 > This tutorial deliberately keeps a single file per part instead, mainly so readers coming from v1 can follow the same one file per part pattern they already know. It is a conscious pedagogical tradeoff, not a claim that this is the "correct" way to structure a real app.
+
+[⬆️ **`Part 1`**](#part-1)
 
 ---
 
@@ -266,21 +311,41 @@ py app_v9.py
 streamlit run app_v9.py
 ```
 
-TODO: expected output for both modes.
+Running the CLI mode loads the embeddings model once, then walks through the test cases: a danger score with summary, an `answer_question` call, and a `simplify_clause` call. Example output:
+
+```bash
+Score: 2
+Summary: This is a synthetic test document designed to stress test retrieval systems...
+===> answer_question
+question: What the document is about?
+answer: Based on the excerpts provided, this document is a synthetic legal document created for testing purposes only...
+===> simplify_clause
+clause: 3.3 Real Estate Agent Obligations...
+answer: Plain English Version of Section 3.3...
+```
+
+Running `streamlit run app_v9.py` instead opens the same logic in a browser UI.
+
+![Streamlit UI running app_v9.py](assets/part_01/screenshot_streamlit.jpg)
+*app_v9.py running in Streamlit UI mode*
+
+> Note: you'll notice the danger score differs slightly between the CLI run and the screenshot above (2 vs 3). LLMs are not deterministic, so small variations between runs are expected, even with the same input.
 
 ---
 
 ### Conclusions
 
-TODO
+`app_v9.py` merges the CLI test file and the Streamlit UI into one, using `streamlit.runtime.exists()` to tell the two run modes apart without conflicting `__main__` blocks. The RAG core itself didn't change.
+
+We also introduced `@st.cache_resource`, which turned out to work the same whether the file runs as CLI or as Streamlit, so no extra conditional logic was needed there.
+
+From here, we're ready to see how to run a local LLM and replace the Claude calls entirely. Is it worth the trouble? Let's see in the next part 👇.
 
 ---
 
-> 💡 **Curiosity:** TODO
+> 💡 **Curiosity:** `llama3.2:1b` has around 1 billion parameters, small enough to run on a laptop CPU. For comparison, that is roughly 100 to 400 times smaller than most frontier cloud models. It is a useful reminder that "small" local models trade raw capability for speed and privacy, which is exactly the tension this project explores.
 
 [↑ Back to Table of Contents](#table-of-contents_)
-
-[⬆️ **`Part 1`**](#part-1)
 
 <a name="part-2"></a>
 

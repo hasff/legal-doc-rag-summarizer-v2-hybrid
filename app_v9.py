@@ -265,7 +265,7 @@ def run_cli_tests():
 
 
 
-    # # 1)
+    # 1)
     _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
