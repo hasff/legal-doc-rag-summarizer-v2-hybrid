@@ -26,7 +26,7 @@ Before you dive in, keep a few things in mind:
 2. **Not production ready:** this project was built to learn and teach. It has not been tested or hardened for production use.
 3. **Built with AI Assistance:** this README was written with AI help, mainly for English refinement. The architecture, curriculum, and all technical decisions are my own.
 
-This project is a sequel to [legal doc rag summarizer](TODO: link), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the pipeline runs locally instead of calling Claude for everything?
+This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the pipeline runs locally instead of calling Claude for everything?
 
 TODO: inspiration video credit.
 
@@ -74,7 +74,7 @@ This project has two audiences in mind.
 
 **🔁 Coming from v1?**
 
-You already have a working RAG pipeline that extracts text from a PDF, chunks it, searches it with vector and BM25 retrieval, and uses Claude for a danger score, a Q&A flow, and a clause simplifier. This sequel takes that pipeline and asks: 
+You already have a working RAG pipeline (from [legal-doc-rag-summarizer](https://github.com/hasff/legal-doc-rag-summarizer)) that extracts text from a PDF, chunks it, searches it with vector and BM25 retrieval, and uses Claude for a danger score, a Q&A flow, and a clause simplifier. This sequel takes that pipeline and asks: 
 - Could part of this run on a small local model instead, and where does that stop making sense?
 
 
