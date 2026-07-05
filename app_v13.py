@@ -186,7 +186,6 @@ def ask_local_llm(system: str, query: str, prefill=False) -> str:
     response.raise_for_status()
     return response.json()["message"]["content"]
 
-# router
 def ask_llm(system: str, query: str, prefill= False) -> str:
     return ask_claude(system, query, prefill)
     # return ask_local_llm(system, query, prefill)

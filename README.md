@@ -413,19 +413,80 @@ pip install ollama
 
 - `ollama` - the Python client used to talk to your local Ollama server.
 
-You also need the model pulled locally:
-
-```bash
-ollama pull llama3.2:1b
-```
-
 ---
 
 ### Code walkthrough
 
 > 📄 **File:** `app_v10.py`
 
-TODO: brief walkthrough of `ask_local_llm`.
+In `app_v9.py`, every call to Claude went straight through one function:
+
+```python
+def ask_claude(system: str, query: str, prefill=False) -> str:
+```
+
+Now we introduce a local model as an alternative to Claude.
+
+Let's see how we call it:
+
+```python
+# Ollama
+import ollama
+...
+OLLAMA_MODEL = "llama3.2:1b"
+...
+def ask_local_llm(system: str, query: str, prefill=False) -> str:
+    print("🤖📍 Local LLM here, happy to answer!")
+    msgs = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": query},
+    ]
+    response = ollama.chat(
+        model=OLLAMA_MODEL,
+        messages=msgs,
+        format="json" if prefill else None, # 🎯
+    )
+    return response["message"]["content"]
+```
+
+This function uses the `ollama` module instead of the Claude SDK. It also forces a JSON response differently: instead of an assistant prefill starting with `{` 🏹👇, it uses the `format` 🎯👆 parameter.
+
+> 🪶 Remember:
+>```python
+>def ask_claude(system: str, query: str, prefill= False) -> str:
+> 
+>   print("🤖🌐 Claude here - happy to answer!")
+> 
+>   msgs = [{"role": "user", "content": query}]
+> 
+>   # put words in claude's mouth
+>   # to force claude to return json since it "thinks" it already started writing json
+>   if prefill:
+>       msgs.append({"role": "assistant", "content": "{"}) # 🏹
+> ```
+
+<br>
+
+Next we need a strategy to swap models easily. Since `ask_claude` and `ask_local_llm` share the same signature, we can create an intermediate function that calls one or the other explicitly:
+
+```python
+def ask_llm(system: str, query: str, prefill=False) -> str:
+    # return ask_claude(system, query, prefill)
+    return ask_local_llm(system, query, prefill)
+```
+
+From now on, every place in the code that needs an LLM calls `ask_llm` instead of `ask_claude` or `ask_local_llm` directly. Switching between Claude and local is now a one line change.
+
+Here is one of those call sites, unchanged apart from the function name:
+
+```python
+# 🤖── LLM calls - actions ────────────────────────────────────────────────────
+def compute_danger_score(chunks: list[str]) -> dict:
+    sample = "\n\n---\n\n".join(chunks[:20])
+    prompt = f"""..."""
+    # raw = ask_claude(SYSTEM_CONTRACT, prompt, True)   # BEFORE
+    raw = ask_llm(SYSTEM_CONTRACT, prompt, True)        # AFTER
+```
 
 ---
 
