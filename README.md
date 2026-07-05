@@ -500,15 +500,141 @@ The test file runs three checks against the same document: a danger score, a dir
 
 **Danger score**
 
-Claude scored the document a 2, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
+Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
+
+- Claude
+```bash
+Score: 3
+Summary: This is a synthetic test document designed to stress-test RAG systems with intentional ambiguities across multiple domains (data protection, employment, AI, real estate, cybersecurity); it contains no genuinely predatory clauses, though the ambiguous language structure itself would be problematic in a real contract. 
+
+➡️  clause: Section 1.3 - Non-Refundable Processing Fees 
+➡️  issue: Processing fees are stated as non-refundable once transaction enters cleared state, with no dispute resolution mechanism or exception for system failures, which is unusually rigid for payment processing. 
+
+
+➡️  clause: Section 2.2 - 24-Hour Credential Return Requirement 
+➡️  issue: Requiring terminated employees to return all access credentials within 24 hours is aggressive and may create operational hardship; industry standard is typically 5-10 business days. 
+
+
+➡️  clause: Section 4.2 - Security Personnel Detention Authority 
+➡️  issue: Language authorizing security personnel to detain suspected trespassers pending law enforcement is legally ambiguous and potentially exposes the company to false imprisonment liability depending on jurisdiction. 
+```
+
+- Local
+```bash
+Score: 4
+Summary: Most standard commercial contracts should be safe and reasonable. 
+
+➡️  clause: 2.1 Contract Termination 
+➡️  issue: Either party may terminate this Agreement upon thirty (30) days written notice. 
+
+
+➡️  clause: 3.1 Legal Agency 
+➡️  issue: Autonomous AI agents deployed within this system must operate within predefined tool-use boundaries. 
+
+
+➡️  clause: 4.1 Cybersecurity 
+➡️  issue: All systems must implement multi-factor authentication and encrypt data at rest using AES-256. 
+
+
+➡️  clause: 5.2 Asset Transfer 
+➡️  issue: Transfer of tangible assets between group entities requires approval from the Asset Management Committee. 
+
+```
 
 **Answering "What is the document about?"**
 
 Claude gave an accurate, well organized answer, correctly identifying the document as a synthetic test file covering data protection, employee transfer, and agent conduct. The local model produced a plausible sounding but inaccurate answer, describing it as a straightforward Data Processing Agreement and missing that it is a synthetic, deliberately ambiguous test document.
 
+- Claude
+```bash
+Based on the excerpts provided, this is **a synthetic legal document created for testing purposes** — not a real legal agreement.
+
+The document is intentionally designed to contain ambiguous language to "stress-test retrieval systems." It covers several legal topics:
+
+1. **Data Processing and Data Protection** (Section 1) — covering personal data handling, storage, erasure, and technical security measures
+
+2. **Employee Transfer Regulations (TUPE)** — addressing what happens to employees and their employment terms when a business transfers to a new employer, including notice requirements and pension obligations
+
+3. **Agent Responsibilities and Conduct** (Section 3) — defining the legal duties of agents acting on behalf of a Principal under a Power of Attorney, including fiduciary obligations and conflict of interest disclosures
+
+However, it's important to note that the excerpts appear incomplete and fragmented. There are also references to technical system processes (error codes, audit trails, infrastructure teams) mixed into what would normally be pure legal content, which further indicates this is a test document rather than an authentic contract.
+
+**Bottom line:** This is not a real binding agreement you would encounter in practice. 
+```
+
+- Local
+```bash
+This contract appears to be a Data Processing Agreement, specifically addressing the processing of personal data by acontroller (likely an organization or company) in relation to employees who are assigned to transferred undertakings.
+
+The key points of this agreement are:
+
+1. The controller processes personal data in accordance with legal principles such as lawfulness, fairness, and transparency.
+2. When transferring employees to a new employer under employment transfer regulations, the original employer must notify affected employees and preserve terms and conditions of employment.
+3. In the event of repeated abnormal terminations triggering escalation to the on-call infrastructure team, the agreement outlines procedures for handling such situations.
+
+There are no clauses that seem unusually or significantly disadvantageous compared to industry standards in this contract.
+```
+
 **Simplifying a clause**
 
 Claude rewrote the real estate agent clause clearly and stuck to what was actually in the text. The local model's rewrite drifted: it introduced details not present in the original clause (like contacting banks and lenders) and repeated large chunks of the source text instead of truly simplifying it.
+
+- Claude
+```bash
+# Plain English Rewrite
+
+## What Real Estate Agents Must Do
+
+**Act in your best interest**
+Real estate agents must always work to benefit you, their client, throughout the entire property buying or selling process.
+
+**No conflicts of interest**
+Agents cannot represent two sides with opposing interests in the same deal (for example, they can't represent both the buyer and seller) unless they:
+- Tell both parties in writing about the conflict, and
+- Get written permission from both parties to proceed
+
+**Tell you about their fees upfront**
+Before you hire an agent, they must clearly explain how much they will be paid and how their commission is structured. You'll receive this information on Form REA-DISC-2024.
+
+**Follow anti-money laundering rules**
+Agents must comply with financial regulations to prevent money laundering and must check that all parties involved are legitimate.
+
+---
+
+## Key Takeaway
+
+This clause protects you by requiring agents to be transparent about fees, avoid conflicts of interest, and prioritize your interests over their own. These are standard protections in real estate transactions.
+```
+
+- Local
+```bash
+I've rewritten the clause in plain, simple English, along with additional context where helpful.
+
+**Original Clause:**
+
+"Licensed real estate agents must act in the best interest of their client throughout the property transaction lifecycle. Agents are prohibited from representing conflicting interests in the same transaction without written disclosure and informed consent from both parties. Commission structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must comply with anti-money laundering regulations and perform due diligence on all parties. Failure to comply may result in licence suspension under REG-REA-CONDUCT-v7."
+
+**Rewritten Clause:**
+
+"A real estate agent's main job is to help their client buy or sell a property. They should always act in the best interest of their client, not just for themselves.
+
+To do this:
+
+* The agent must know what they're doing and be honest with both parties involved.
+* They need to tell everyone who might be affected by what happens next (like banks and lenders).
+* They have to follow laws that prevent them from making money on a deal without the client's knowledge or consent.
+* If an agent makes something that could harm their client, they'll face consequences.
+
+By following these rules, real estate agents can help ensure a smooth transaction for both themselves and their clients."
+
+**Additional Context:**
+
+This rewritten clause is based on industry standards and best practices in the real estate industry. The Anti-Money Laundering (AML) regulations mentioned are also widely accepted and enforced in the financial sector.
+
+The section on Real Estate Agent Obligations is taken from a related contract excerpt, specifically the "3.3 Real Estate Agent Obligations" section of the contract. This clause outlines the responsibilities of real estate agents, including acting in the best interest of their clients and complying with anti-money laundering regulations.
+
+Note that I did not flag any clauses as unusually or significantly disadvantageous compared to industry standards, as these are general guidelines and may vary depending on the specific jurisdiction or context. 
+```
 
 ---
 

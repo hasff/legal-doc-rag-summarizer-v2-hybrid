@@ -164,8 +164,8 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
     return response["message"]["content"]
 
 def ask_llm(system: str, query: str, prefill= False) -> str:
-    # return ask_claude(system, query, prefill)
-    return ask_local_llm(system, query, prefill)
+    return ask_claude(system, query, prefill)
+    # return ask_local_llm(system, query, prefill)
 
 
 # 🤖── LLM calls - actions ────────────────────────────────────────────────────
@@ -294,7 +294,7 @@ def run_cli_tests():
 
 
     # 1)
-    _test_compute_danger_score(pdf_text_chunks, True)
+    _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
     question = "What the document is about?"
