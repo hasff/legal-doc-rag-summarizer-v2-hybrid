@@ -532,7 +532,7 @@ py app_v10.py
 
 I ran this test file twice: once with `ask_llm` pointing to Claude, then again pointing to the local model. Here is how they compare.
 
-**Danger score**
+📍 **Danger score**
 
 Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. <br>
 The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
@@ -590,9 +590,9 @@ Management Committee.
 ✅ Claude passes. <br>
 ❌ Local model fails: the "issues" it lists are just clause descriptions, not actual legal concerns. Example: flagging "AI agents must operate within predefined tool-use boundaries" as an issue makes no sense, that's a normal constraint, not a risk.
 
-<hr style="border-top: 1px dashed green; heigth: 2px">
+<br>
 
-**Answering "What is the document about?"**
+📍 **Answering "What is the document about?"**
 
 Claude gave an accurate, well organized answer, correctly identifying the document as a synthetic test file covering data protection, employee transfer, and agent conduct. The local model produced a plausible sounding but inaccurate answer, describing it as a straightforward Data Processing Agreement and missing that it is a synthetic, deliberately ambiguous test document.
 
@@ -626,7 +626,9 @@ The key points of this agreement are:
 There are no clauses that seem unusually or significantly disadvantageous compared to industry standards in this contract.
 ```
 
-**Simplifying a clause**
+<br>
+
+📍 **Simplifying a clause**
 
 Claude rewrote the real estate agent clause clearly and stuck to what was actually in the text. The local model's rewrite drifted: it introduced details not present in the original clause (like contacting banks and lenders) and repeated large chunks of the source text instead of truly simplifying it.
 
