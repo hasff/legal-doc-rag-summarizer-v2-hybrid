@@ -600,32 +600,47 @@ Claude gave an accurate, well organized answer, correctly identifying the docume
 
 - Claude
 ```bash
-Based on the excerpts provided, this is **a synthetic legal document created for testing purposes** — not a real legal agreement.
+Based on the excerpts provided, this is **a synthetic legal document created for testing purposes** — 
+not a real legal agreement.
 
-The document is intentionally designed to contain ambiguous language to "stress-test retrieval systems." It covers several legal topics:
+The document is intentionally designed to contain ambiguous language to "stress-test retrieval systems."
+ It covers several legal topics:
 
-1. **Data Processing and Data Protection** (Section 1) — covering personal data handling, storage, erasure, and technical security measures
+1. **Data Processing and Data Protection** (Section 1) — covering personal data handling, storage, 
+erasure, and technical security measures
 
-2. **Employee Transfer Regulations (TUPE)** — addressing what happens to employees and their employment terms when a business transfers to a new employer, including notice requirements and pension obligations
+2. **Employee Transfer Regulations (TUPE)** — addressing what happens to employees and their employment 
+terms when a business transfers to a new employer, including notice requirements and pension obligations
 
-3. **Agent Responsibilities and Conduct** (Section 3) — defining the legal duties of agents acting on behalf of a Principal under a Power of Attorney, including fiduciary obligations and conflict of interest disclosures
+3. **Agent Responsibilities and Conduct** (Section 3) — defining the legal duties of agents acting on 
+behalf of a Principal under a Power of Attorney, including fiduciary obligations and conflict of interest 
+disclosures
 
-However, it's important to note that the excerpts appear incomplete and fragmented. There are also references to technical system processes (error codes, audit trails, infrastructure teams) mixed into what would normally be pure legal content, which further indicates this is a test document rather than an authentic contract.
+However, it's important to note that the excerpts appear incomplete and fragmented. There are also 
+references to technical system processes (error codes, audit trails, infrastructure teams) mixed into 
+what would normally be pure legal content, which further indicates this is a test document rather than 
+an authentic contract.
 
 **Bottom line:** This is not a real binding agreement you would encounter in practice. 
 ```
 
 - Local
 ```bash
-This contract appears to be a Data Processing Agreement, specifically addressing the processing of personal data by acontroller (likely an organization or company) in relation to employees who are assigned to transferred undertakings.
+This contract appears to be a Data Processing Agreement, specifically addressing the processing of personal
+ data by acontroller (likely an organization or company) in relation to employees who are assigned to 
+ transferred undertakings.
 
 The key points of this agreement are:
 
-1. The controller processes personal data in accordance with legal principles such as lawfulness, fairness, and transparency.
-2. When transferring employees to a new employer under employment transfer regulations, the original employer must notify affected employees and preserve terms and conditions of employment.
-3. In the event of repeated abnormal terminations triggering escalation to the on-call infrastructure team, the agreement outlines procedures for handling such situations.
+1. The controller processes personal data in accordance with legal principles such as lawfulness, fairness,
+ and transparency.
+2. When transferring employees to a new employer under employment transfer regulations, the original 
+employer must notify affected employees and preserve terms and conditions of employment.
+3. In the event of repeated abnormal terminations triggering escalation to the on-call infrastructure team, 
+the agreement outlines procedures for handling such situations.
 
-There are no clauses that seem unusually or significantly disadvantageous compared to industry standards in this contract.
+There are no clauses that seem unusually or significantly disadvantageous compared to industry standards 
+in this contract.
 ```
 
 <br>
