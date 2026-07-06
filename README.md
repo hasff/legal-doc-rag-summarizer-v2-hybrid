@@ -682,7 +682,8 @@ parties involved are legitimate.
 ## Key Takeaway
 
 This clause protects you by requiring agents to be transparent about fees, avoid conflicts of interest, 
-and prioritize your interests over their own. These are standard protections in real estate transactions.
+and prioritize your interests over their own. These are standard protections in real estate 
+transactions.
 ```
 
 - Local
@@ -721,12 +722,13 @@ The Anti-Money Laundering (AML) regulations mentioned are also widely accepted a
 financial sector.
 
 The section on Real Estate Agent Obligations is taken from a related contract excerpt, specifically 
-the "3.3 Real Estate Agent Obligations" section of the contract. This clause outlines the responsibilities
- of real estate agents, including acting in the best interest of their clients and complying with 
- anti-money laundering regulations.
+the "3.3 Real Estate Agent Obligations" section of the contract. This clause outlines the 
+responsibilities of real estate agents, including acting in the best interest of their clients 
+and complying with anti-money laundering regulations.
 
-Note that I did not flag any clauses as unusually or significantly disadvantageous compared to industry 
-standards, as these are general guidelines and may vary depending on the specific jurisdiction or context. 
+Note that I did not flag any clauses as unusually or significantly disadvantageous compared to 
+industry standards, as these are general guidelines and may vary depending on the specific 
+jurisdiction or context. 
 ```
 
 ---
