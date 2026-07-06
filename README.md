@@ -540,23 +540,26 @@ The local model scored it a 4 and, instead of a summary grounded in the document
 - Claude
 ```bash
 Score: 3
-Summary: This is a synthetic test document designed to stress-test RAG systems with intentional ambiguities across 
-multiple domains (data protection, employment, AI, real estate, cybersecurity); it contains no genuinely predatory 
-clauses, though the ambiguous language structure itself would be problematic in a real contract. 
+Summary: This is a synthetic test document designed to stress-test RAG systems with intentional 
+ambiguities across multiple domains (data protection, employment, AI, real estate, cybersecurity); 
+it contains no genuinely predatory clauses, though the ambiguous language structure itself would 
+be problematic in a real contract. 
 
 ➡️  clause: Section 1.3 - Non-Refundable Processing Fees 
-➡️  issue: Processing fees are stated as non-refundable once transaction enters cleared state, with no dispute 
-resolution mechanism or exception for system failures, which is unusually rigid for payment processing. 
+➡️  issue: Processing fees are stated as non-refundable once transaction enters cleared state, 
+with no dispute resolution mechanism or exception for system failures, which is unusually rigid 
+for payment processing. 
 
 
 ➡️  clause: Section 2.2 - 24-Hour Credential Return Requirement 
-➡️  issue: Requiring terminated employees to return all access credentials within 24 hours is aggressive and may 
-create operational hardship; industry standard is typically 5-10 business days. 
+➡️  issue: Requiring terminated employees to return all access credentials within 24 hours is 
+aggressive and may create operational hardship; industry standard is typically 5-10 business days. 
 
 
 ➡️  clause: Section 4.2 - Security Personnel Detention Authority 
-➡️  issue: Language authorizing security personnel to detain suspected trespassers pending law enforcement is legally 
-ambiguous and potentially exposes the company to false imprisonment liability depending on jurisdiction. 
+➡️  issue: Language authorizing security personnel to detain suspected trespassers pending law 
+enforcement is legally ambiguous and potentially exposes the company to false imprisonment liability 
+depending on jurisdiction. 
 ```
 
 - Local
@@ -569,22 +572,25 @@ Summary: Most standard commercial contracts should be safe and reasonable.
 
 
 ➡️  clause: 3.1 Legal Agency 
-➡️  issue: Autonomous AI agents deployed within this system must operate within predefined tool-use boundaries. 
+➡️  issue: Autonomous AI agents deployed within this system must operate within predefined tool-use 
+boundaries. 
 
 
 ➡️  clause: 4.1 Cybersecurity 
-➡️  issue: All systems must implement multi-factor authentication and encrypt data at rest using AES-256. 
+➡️  issue: All systems must implement multi-factor authentication and encrypt data at rest using 
+AES-256. 
 
 
 ➡️  clause: 5.2 Asset Transfer 
-➡️  issue: Transfer of tangible assets between group entities requires approval from the Asset Management Committee. 
+➡️  issue: Transfer of tangible assets between group entities requires approval from the Asset 
+Management Committee. 
 
 ```
 
 ✅ Claude passes. <br>
 ❌ Local model fails: the "issues" it lists are just clause descriptions, not actual legal concerns. Example: flagging "AI agents must operate within predefined tool-use boundaries" as an issue makes no sense, that's a normal constraint, not a risk.
 
-<hr style="border-top: 1px dashed green;">
+<hr style="border-top: 1px dashed green; heigth: 2px">
 
 **Answering "What is the document about?"**
 
