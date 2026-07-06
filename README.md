@@ -628,7 +628,7 @@ are also references to technical system processes (error codes, audit trails, in
 - Local
 ```bash
 This contract appears to be a Data Processing Agreement, specifically addressing the 
-processing of personal data by acontroller (likely an organization or company) in relation 
+processing of personal data by a controller (likely an organization or company) in relation 
 to employees who are assigned to transferred undertakings.
 
 The key points of this agreement are:
@@ -644,6 +644,9 @@ There are no clauses that seem unusually or significantly disadvantageous compar
 standards in this contract.
 ```
 
+✅ Claude passes. <br>
+❌ Local model fails: It missed the obvious synthetic document and presented a confident, coherent answer built on a wrong premise.
+
 <br>
 
 📍 **Simplifying a clause**
@@ -657,24 +660,29 @@ Claude rewrote the real estate agent clause clearly and stuck to what was actual
 ## What Real Estate Agents Must Do
 
 **Act in your best interest**
-Real estate agents must always work to benefit you, their client, throughout the entire property buying or selling process.
+Real estate agents must always work to benefit you, their client, throughout the entire property 
+buying or selling process.
 
 **No conflicts of interest**
-Agents cannot represent two sides with opposing interests in the same deal (for example, they can't represent both the buyer and seller) unless they:
+Agents cannot represent two sides with opposing interests in the same deal (for example, they can't 
+represent both the buyer and seller) unless they:
 - Tell both parties in writing about the conflict, and
 - Get written permission from both parties to proceed
 
 **Tell you about their fees upfront**
-Before you hire an agent, they must clearly explain how much they will be paid and how their commission is structured. You'll receive this information on Form REA-DISC-2024.
+Before you hire an agent, they must clearly explain how much they will be paid and how their commission 
+is structured. You'll receive this information on Form REA-DISC-2024.
 
 **Follow anti-money laundering rules**
-Agents must comply with financial regulations to prevent money laundering and must check that all parties involved are legitimate.
+Agents must comply with financial regulations to prevent money laundering and must check that all 
+parties involved are legitimate.
 
 ---
 
 ## Key Takeaway
 
-This clause protects you by requiring agents to be transparent about fees, avoid conflicts of interest, and prioritize your interests over their own. These are standard protections in real estate transactions.
+This clause protects you by requiring agents to be transparent about fees, avoid conflicts of interest, 
+and prioritize your interests over their own. These are standard protections in real estate transactions.
 ```
 
 - Local
@@ -683,28 +691,42 @@ I've rewritten the clause in plain, simple English, along with additional contex
 
 **Original Clause:**
 
-"Licensed real estate agents must act in the best interest of their client throughout the property transaction lifecycle. Agents are prohibited from representing conflicting interests in the same transaction without written disclosure and informed consent from both parties. Commission structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must comply with anti-money laundering regulations and perform due diligence on all parties. Failure to comply may result in licence suspension under REG-REA-CONDUCT-v7."
+"Licensed real estate agents must act in the best interest of their client throughout the property 
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same transaction
+ without written disclosure and informed consent from both parties. Commission structures must be disclosed
+  prior to engagement (Disclosure Form: REA-DISC-2024). Agents must comply with anti-money laundering 
+  regulations and perform due diligence on all parties. Failure to comply may result in licence suspension 
+  under REG-REA-CONDUCT-v7."
 
 **Rewritten Clause:**
 
-"A real estate agent's main job is to help their client buy or sell a property. They should always act in the best interest of their client, not just for themselves.
+"A real estate agent's main job is to help their client buy or sell a property. They should always act 
+in the best interest of their client, not just for themselves.
 
 To do this:
 
 * The agent must know what they're doing and be honest with both parties involved.
 * They need to tell everyone who might be affected by what happens next (like banks and lenders).
-* They have to follow laws that prevent them from making money on a deal without the client's knowledge or consent.
+* They have to follow laws that prevent them from making money on a deal without the client's knowledge
+ or consent.
 * If an agent makes something that could harm their client, they'll face consequences.
 
-By following these rules, real estate agents can help ensure a smooth transaction for both themselves and their clients."
+By following these rules, real estate agents can help ensure a smooth transaction for both themselves 
+and their clients."
 
 **Additional Context:**
 
-This rewritten clause is based on industry standards and best practices in the real estate industry. The Anti-Money Laundering (AML) regulations mentioned are also widely accepted and enforced in the financial sector.
+This rewritten clause is based on industry standards and best practices in the real estate industry. 
+The Anti-Money Laundering (AML) regulations mentioned are also widely accepted and enforced in the 
+financial sector.
 
-The section on Real Estate Agent Obligations is taken from a related contract excerpt, specifically the "3.3 Real Estate Agent Obligations" section of the contract. This clause outlines the responsibilities of real estate agents, including acting in the best interest of their clients and complying with anti-money laundering regulations.
+The section on Real Estate Agent Obligations is taken from a related contract excerpt, specifically 
+the "3.3 Real Estate Agent Obligations" section of the contract. This clause outlines the responsibilities
+ of real estate agents, including acting in the best interest of their clients and complying with 
+ anti-money laundering regulations.
 
-Note that I did not flag any clauses as unusually or significantly disadvantageous compared to industry standards, as these are general guidelines and may vary depending on the specific jurisdiction or context. 
+Note that I did not flag any clauses as unusually or significantly disadvantageous compared to industry 
+standards, as these are general guidelines and may vary depending on the specific jurisdiction or context. 
 ```
 
 ---
