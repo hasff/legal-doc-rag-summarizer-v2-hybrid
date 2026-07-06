@@ -490,33 +490,73 @@ def compute_danger_score(chunks: list[str]) -> dict:
 
 ---
 
+### How the tests are wired
+
+If you are new to this project, `run_cli_tests()` is the entry point when you run the file from the CLI. It loads a sample PDF, builds the chunks, embeddings, and BM25 index, then runs three tests in sequence:
+
+```python
+file_path = PDFS_DIR / "danger_zone_rag_test.pdf"
+
+pdf_text = extract_text_from_pdf(file_path)
+pdf_text_chunks = chunk_text(pdf_text)
+
+chunks_embeddings = embed_texts(pdf_text_chunks)
+chunks_tokens = tokenize_texts(pdf_text_chunks)
+bm25 = build_bm25_index(chunks_tokens)
+
+# 1)
+_test_compute_danger_score(pdf_text_chunks)
+
+# 2)
+question = "What the document is about?"
+_test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
+
+# 3)
+clause = """3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+transaction without written disclosure and informed consent from both parties. Commission
+structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+_test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
+```
+
+Each numbered call tests one of the LLM functions we just saw: the danger score, a free form question, and a clause simplification.
+
+---
+
 ### Run it
 
 ```bash
 py app_v10.py
 ```
 
-The test file runs three checks against the same document: a danger score, a direct question, and a clause simplification, using Claude and the local model side by side so you can compare them.
+I ran this test file twice: once with `ask_llm` pointing to Claude, then again pointing to the local model. Here is how they compare.
 
 **Danger score**
 
-Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
+Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. <br>
+The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
 
 - Claude
 ```bash
 Score: 3
-Summary: This is a synthetic test document designed to stress-test RAG systems with intentional ambiguities across multiple domains (data protection, employment, AI, real estate, cybersecurity); it contains no genuinely predatory clauses, though the ambiguous language structure itself would be problematic in a real contract. 
+Summary: This is a synthetic test document designed to stress-test RAG systems with intentional ambiguities across 
+multiple domains (data protection, employment, AI, real estate, cybersecurity); it contains no genuinely predatory 
+clauses, though the ambiguous language structure itself would be problematic in a real contract. 
 
 ➡️  clause: Section 1.3 - Non-Refundable Processing Fees 
-➡️  issue: Processing fees are stated as non-refundable once transaction enters cleared state, with no dispute resolution mechanism or exception for system failures, which is unusually rigid for payment processing. 
+➡️  issue: Processing fees are stated as non-refundable once transaction enters cleared state, with no dispute 
+resolution mechanism or exception for system failures, which is unusually rigid for payment processing. 
 
 
 ➡️  clause: Section 2.2 - 24-Hour Credential Return Requirement 
-➡️  issue: Requiring terminated employees to return all access credentials within 24 hours is aggressive and may create operational hardship; industry standard is typically 5-10 business days. 
+➡️  issue: Requiring terminated employees to return all access credentials within 24 hours is aggressive and may 
+create operational hardship; industry standard is typically 5-10 business days. 
 
 
 ➡️  clause: Section 4.2 - Security Personnel Detention Authority 
-➡️  issue: Language authorizing security personnel to detain suspected trespassers pending law enforcement is legally ambiguous and potentially exposes the company to false imprisonment liability depending on jurisdiction. 
+➡️  issue: Language authorizing security personnel to detain suspected trespassers pending law enforcement is legally 
+ambiguous and potentially exposes the company to false imprisonment liability depending on jurisdiction. 
 ```
 
 - Local
@@ -540,6 +580,11 @@ Summary: Most standard commercial contracts should be safe and reasonable.
 ➡️  issue: Transfer of tangible assets between group entities requires approval from the Asset Management Committee. 
 
 ```
+
+✅ Claude passes. <br>
+❌ Local model fails: the "issues" it lists are just clause descriptions, not actual legal concerns. Example: flagging "AI agents must operate within predefined tool-use boundaries" as an issue makes no sense, that's a normal constraint, not a risk.
+
+<hr style="border-top: 1px dashed green;">
 
 **Answering "What is the document about?"**
 
