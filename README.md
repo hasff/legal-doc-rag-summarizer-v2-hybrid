@@ -532,6 +532,8 @@ py app_v10.py
 
 I ran this test file twice: once with `ask_llm` pointing to Claude, then again pointing to the local model. Here is how they compare.
 
+<br>
+
 📍 **Danger score**
 
 Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. <br>
