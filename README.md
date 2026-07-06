@@ -564,7 +564,7 @@ enforcement is legally ambiguous and potentially exposes the company to false im
 depending on jurisdiction. 
 ```
 
-- Local
+- Local model
 ```bash
 Score: 4
 Summary: Most standard commercial contracts should be safe and reasonable. 
@@ -625,7 +625,7 @@ are also references to technical system processes (error codes, audit trails, in
 **Bottom line:** This is not a real binding agreement you would encounter in practice. 
 ```
 
-- Local
+- Local model
 ```bash
 This contract appears to be a Data Processing Agreement, specifically addressing the 
 processing of personal data by a controller (likely an organization or company) in relation 
@@ -686,7 +686,7 @@ and prioritize your interests over their own. These are standard protections in 
 transactions.
 ```
 
-- Local
+- Local model
 ```bash
 I've rewritten the clause in plain, simple English, along with additional context where helpful.
 
@@ -731,11 +731,17 @@ industry standards, as these are general guidelines and may vary depending on th
 jurisdiction or context. 
 ```
 
+✅ Claude passes. <br>
+❌ Local model fails: it invented details not in the clause (contacting banks and lenders), padded the answer with unrelated commentary, and never actually simplified the language.
+
+
 ---
 
 ### Conclusions
 
-The pattern across all three tests is consistent: the local model is fluent, but not reliable, on generation tasks. It produces confident, well formatted answers that sound right and are wrong or invented in ways that matter for a legal context. That gap is the reason this tutorial moves toward a hybrid design instead of trying to push everything onto the local model.
+The pattern across all three tests is consistent: the local model is fluent, but not reliable, on generation tasks. It produces confident, well formatted answers that sound right and are wrong or invented in ways that matter for a legal context. It is worth remembering this is a 1B model going up against a far larger, frontier one, so this is not a fair fight.
+
+So was all this effort for nothing? Not quite. This mirrors something familiar outside code: think about calling customer support. Sometimes the first person you reach can solve it. Other times, they just point you to the right specialist. That is exactly the role a small model can still play well, and it is what we build next: a hybrid design where the local model filters and routes, and Claude steps in for the parts that actually need it.
 
 ---
 
