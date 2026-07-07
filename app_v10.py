@@ -2,6 +2,7 @@
 import os
 import math
 import re
+import json
 
 # PDF Reader
 import pdfplumber
@@ -187,7 +188,7 @@ def compute_danger_score(chunks: list[str]) -> dict:
     Return ONLY valid JSON, no markdown, no backticks, no explanation.
     """
     raw = ask_llm(SYSTEM_CONTRACT, prompt, True)
-    import json
+    
     try:
         # Strip markdown fences if present
         cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
