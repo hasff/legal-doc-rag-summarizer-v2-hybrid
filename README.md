@@ -34,14 +34,13 @@ TODO: inspiration video credit.
 
 # Key Concepts Demonstrated
 
-TODO: finalize once parts 3 to 5 are locked in. Draft list:
-
 ✅ Merging CLI and Streamlit into a single entry point
 <br>✅ Running a local LLM (llama3.2:1b) via Ollama
 <br>✅ Spotting the limits of a small local model on generation tasks
-<br>✅ Hybrid routing: local model for classification, Claude for generation
-<br>✅ Single call vs decomposed call design tradeoffs
+<br>✅ Single responsibility routing with is_legal_question
+<br>✅ Calling Ollama three ways: CLI, Python module, raw HTTP
 <br>✅ Calling Ollama directly over HTTP, from Python and from the browser
+<br>✅ Packaging a prompt and parameters into a custom Modelfile
 
 <a name="table-of-contents_"></a>
 
@@ -54,11 +53,12 @@ TODO: finalize once parts 3 to 5 are locked in. Draft list:
 - [Requirements](#requirements_)
 - [Setup](#setup_)
 - [Project Structure](#project-structure_)
-- [Part 01 - One File, Two Audiences: Merging CLI and Streamlit](#part-1)
-- [Part 02 - The Local Baseline: Meeting llama3.2:1b](#part-2)
-- [Part 03 - One Call to Rule Them All](#part-3)
-- [Part 04 - Divide and Conquer: Decomposing the Routing Logic](#part-4)
-- [Part 05 - Talking to Ollama Directly](#part-5)
+- [Part 01 - Introduction: Merging CLI and Streamlit](#part-1)
+- [Part 02 - Going Local with Ollama](#part-2)
+- [Part 03 - Local First, Claude When Needed](#part-3)
+- [Part 04 - Three Ways to Call Ollama](#part-4)
+- [Part 05 - From Python to the Browser](#part-5)
+- [Part 06 - Baking It Into a Modelfile](#part-6)
 - [Next Steps & Resources](#next-steps--resources_)
 - [Get in Touch](#get-in-touch_)
 
@@ -199,7 +199,7 @@ legal-doc-rag-summarizer-v2-hybrid/
 
 ---
 
-# Part 01 - One File, Two Audiences: Merging CLI and Streamlit
+# Part 01 - Introduction: Merging CLI and Streamlit
 
 #### ⚡ Quick Navigation: [⬅️ Project Structure](#project-structure_) | [Part 02 ➡️](#part-2)
 
@@ -351,7 +351,7 @@ From here, we're ready to see how to run a local LLM and replace the Claude call
 
 ---
 
-# Part 02 - The Local Baseline: Meeting llama3.2:1b
+# Part 02 - Going Local with Ollama
 
 #### ⚡ Quick Navigation: [⬅️ Part 01](#part-1) | [Part 03 ➡️](#part-3)
 
@@ -525,6 +525,16 @@ Each numbered call tests one of the LLM functions we just saw: the danger score,
 ---
 
 ### Run it
+
+> ⚠️ **Before running this** 🦙
+>
+> Ollama needs to be running in the background for any code that calls the local model. If it's not, you'll get a `ConnectionError` like this:
+>
+> ```
+> ConnectionError: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+> ```
+>
+> Fix: open a terminal and run `ollama serve`, or just launch the Ollama desktop app, then try again.
 
 ```bash
 py app_v10.py
@@ -757,7 +767,7 @@ So was all this effort for nothing? Not quite. This mirrors something familiar o
 
 ---
 
-# Part 03 - One Call to Rule Them All
+# Part 03 - Local First, Claude When Needed
 
 #### ⚡ Quick Navigation: [⬅️ Part 02](#part-2) | [Part 04 ➡️](#part-4)
 
@@ -773,7 +783,7 @@ TODO: full section, to be written after testing `app_v11.py`. Draft notes: intro
 
 ---
 
-# Part 04 - Divide and Conquer: Decomposing the Routing Logic
+# Part 04 - Three Ways to Call Ollama
 
 #### ⚡ Quick Navigation: [⬅️ Part 03](#part-3) | [Part 05 ➡️](#part-5)
 
@@ -789,9 +799,9 @@ TODO: full section, to be written after testing `app_v12.py`. Draft notes: intro
 
 ---
 
-# Part 05 - Talking to Ollama Directly
+# Part 05 - From Python to the Browser
 
-#### ⚡ Quick Navigation: [⬅️ Part 04](#part-4) | [Next Steps ➡️](#next-steps--resources_)
+#### ⚡ Quick Navigation: [⬅️ Part 04](#part-4) | [Part 06 ➡️](#part-6)
 
 > 📒 **What you'll learn:** TODO
 
@@ -800,6 +810,22 @@ TODO: full section, to be written after testing `app_v13.py`. Draft notes: repla
 [↑ Back to Table of Contents](#table-of-contents_)
 
 [⬆️ **`Part 5`**](#part-5)
+
+<a name="part-6"></a>
+
+---
+
+# Part 06 - Baking It Into a Modelfile
+
+#### ⚡ Quick Navigation: [⬅️ Part 05](#part-5) | [Next Steps ➡️](#next-steps--resources_)
+
+> 📒 **What you'll learn:** TODO
+
+TODO: full section, to be written after testing `app_v13.py`. Draft notes: replaces the Ollama Python client with plain HTTP requests in `ask_local_llm`. Includes a standalone HTML and JavaScript demo that talks to the local model straight from the browser, served with `python -m http.server 8000` to avoid CORS issues with `file://`.
+
+[↑ Back to Table of Contents](#table-of-contents_)
+
+[⬆️ **`Part 6`**](#part-6)
 
 ---
 
@@ -824,6 +850,7 @@ TODO: fill in once Parts 03 to 05 are settled.
 If you find this helpful and feel you learned something new, a ⭐ on the repo is more than enough thanks.
 
 [↑ Back to Table of Contents](#table-of-contents_)
+
 
 <a name="next-steps--resources_"></a>
 
