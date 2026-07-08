@@ -204,33 +204,12 @@ def is_legal_question(text: str) -> bool:
     Task: decide if the user's message is a question about a legal document, contract or terms of service.
 
     Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
-    that does not mention or imply the loaded document must be answered false, even if the message is long, detailed,
-    or phrased as a genuine question. Length and detail do not make a message related.
+    that does not mention or imply a legal context are false.
 
     When in doubt, answer false.
-    Respond with exactly one word: true or false. No explanation, no punctuation.
+    Respond with exactly one word: true or false. No explanation, no punctuation."""
 
-    Examples:
-    Message: "What happens if I terminate early?"
-    Answer: true
-
-    Message: "What does clause 3.2 mean?"
-    Answer: true
-
-    Message: "8 + 5?"
-    Answer: false
-
-    Message: "Tell me about china's history"
-    Answer: false
-
-    Message: "Why in English can I say 'tell me about china's history' and also 'tell me about history of china'. 
-    Does the 'of' version come from french influence?"
-    Answer: false
-
-    Message: "Hello, how are you?"
-    Answer: false"""
-
-    raw = ask_local_llm_v2(system, text)
+    raw = ask_local_llm(system, text)
     return raw.strip().lower().startswith("true")
 
 
