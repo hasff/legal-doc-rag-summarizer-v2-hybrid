@@ -160,47 +160,52 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
         model=OLLAMA_MODEL,
         messages=msgs,
         format="json" if prefill else None,
+        options={
+            "temperature": 0,
+            "seed": 42,
+        },        
     )
 
     return response["message"]["content"]
 
 def ask_llm(system: str, query: str, prefill= False) -> str:
-    # return ask_claude(system, query, prefill)
-    return ask_local_llm(system, query, prefill)
+    return ask_claude(system, query, prefill)
+    # return ask_local_llm(system, query, prefill)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A - Risky option
-# Cons:
-# 1) A function should only do 1 and only 1 thing
-# 2) We are asking a 1B model two distinct tasks in one JSON response,
-#    which increases the risk of malformed output
-#
-# Pros:
-# 1) Faster to implement
-# 2) A single interaction with the llm, faster than two interactions
-def route_message(text: str) -> dict:
-    system = """Analyse the user's message and respond ONLY in JSON:
-{"related": true/false, "simplified": "text or null"}
 
-Rules:
-1. "related": true if the text is about the content of a legal document (contract, terms, clauses). false if it has no relation to the document.
-2. If the text contains <question>...</question>, simplify the content of that tag in "simplified": direct, objective, without losing any information from the original.
-3. If there is no <question> tag, "simplified" must be null.
+def is_legal_question(text: str) -> bool:
+    system = """You are a strict binary classifier.
+    Task: decide if the user's message is a question about a legal document, contract or terms of service.
 
-Return only JSON, no markdown, no explanations."""
+    Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    that does not mention or imply the loaded document must be answered false, even if the message is long, detailed,
+    or phrased as a genuine question. Length and detail do not make a message related.
 
-    raw = ask_local_llm(system, text, prefill=True)
-    try:
-        cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
-        return json.loads(cleaned)
-    except Exception:
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except Exception:
-                pass
-        return {"related": True, "simplified": None}  # fail open, keeps normal flow
+    When in doubt, answer false.
+    Respond with exactly one word: true or false. No explanation, no punctuation.
+
+    Examples:
+    Message: "What happens if I terminate early?"
+    Answer: true
+
+    Message: "What does clause 3.2 mean?"
+    Answer: true
+
+    Message: "8 + 5?"
+    Answer: false
+
+    Message: "Tell me about china's history"
+    Answer: false
+
+    Message: "Why in English can I say 'tell me about china's history' and also 'tell me about history of china'. 
+    Does the 'of' version come from french influence?"
+    Answer: false
+
+    Message: "Hello, how are you?"
+    Answer: false"""
+
+    raw = ask_local_llm(system, text)
+    return raw.strip().lower().startswith("true")
 
 
 # 🤖── LLM calls - actions ────────────────────────────────────────────────────
@@ -246,11 +251,9 @@ def rag_query(question: str, chunks: list[str], embeddings: list[list[float]], b
     return ask_llm(SYSTEM_CONTRACT, prompt)    
 
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
-    route = route_message(f"<question>{question}</question>")
-    if not route["related"]:
-        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question)
-
-    q = route.get("simplified") or question
+    a_legal_question = is_legal_question(question)
+    if not a_legal_question:
+        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question)  
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below.
     If the answer is not in the excerpts, say so clearly.
@@ -262,11 +265,11 @@ def answer_question(question: str, chunks: list[str], embeddings: list[list[floa
     <question>
     {question}
     </question>"""
-    return rag_query(q, chunks, embeddings, bm25, template_prompt, top_k=3)
+    return rag_query(question, chunks, embeddings, bm25, template_prompt, top_k=3)
 
 def simplify_clause(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
-    route = route_message(question)
-    if not route["related"]:
+    a_legal_question = is_legal_question(question)
+    if not a_legal_question:
         return "This doesn't appear to be a legal clause. Paste an excerpt from the contract."
 
     template_prompt = """Rewrite the following legal clause in plain, simple English.
@@ -339,13 +342,17 @@ def run_cli_tests():
 
 
     # 1)
-    _test_compute_danger_score(pdf_text_chunks)
+    # _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
-    question = "What the document is about?"
+    question = "8 + 5?"
+    question = "What the document is about? Should I be concerned about something? I was wondering"
     _test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
 
     # 3) 
+    clause = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+    history of china'. Does the 'of' version comes from frensh influence?
+    """
     clause = """3.3 Real Estate Agent Obligations
 Licensed real estate agents must act in the best interest of their client throughout the property
 transaction lifecycle. Agents are prohibited from representing conflicting interests in the same

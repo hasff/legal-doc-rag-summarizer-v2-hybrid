@@ -3,6 +3,7 @@ import os
 import math
 import re
 import json
+import requests
 
 # PDF Reader
 import pdfplumber
@@ -160,82 +161,78 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
         model=OLLAMA_MODEL,
         messages=msgs,
         format="json" if prefill else None,
+        options={
+            "temperature": 0,
+            "seed": 42,
+        },        
     )
 
     return response["message"]["content"]
+
+def ask_local_llm_v2(system: str, query: str, prefill=False) -> str:
+   
+    print("🤖📍 Local LLM here - happy to answer! :: v2")
+
+    msgs = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": query},
+    ]    
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": msgs,
+        "stream": False,
+        "options": {
+            "temperature": 0,
+            "seed": 42,
+        },        
+    }
+    if prefill:
+        payload["format"] = "json"
+
+    response = requests.post("http://localhost:11434/api/chat", json=payload)
+    response.raise_for_status()
+    return response.json()["message"]["content"]
 
 def ask_llm(system: str, query: str, prefill= False) -> str:
     return ask_claude(system, query, prefill)
     # return ask_local_llm(system, query, prefill)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A - Risky option
-# Cons:
-# 1) A function should only do 1 and only 1 thing
-# 2) We are asking a 1B model two distinct tasks in one JSON response,
-#    which increases the risk of malformed output
-#
-# Pros:
-# 1) Faster to implement
-# 2) A single interaction with the llm, faster than two interactions
-def route_message(text: str) -> dict:
-    system = """Analyse the user's message and respond ONLY in JSON:
-{"related": true/false, "simplified": "text or null"}
 
-Rules:
-1. "related": true if the text is about the content of a legal document (contract, terms, clauses). false if it has no relation to the document.
-2. If the text contains <question>...</question>, simplify the content of that tag in "simplified": direct, objective, without losing any information from the original.
-3. If there is no <question> tag, "simplified" must be null.
+def is_legal_question(text: str) -> bool:
+    system = """You are a strict binary classifier.
+    Task: decide if the user's message is a question about a legal document, contract or terms of service.
 
-Return only JSON, no markdown, no explanations."""
+    Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    that does not mention or imply the loaded document must be answered false, even if the message is long, detailed,
+    or phrased as a genuine question. Length and detail do not make a message related.
 
-    raw = ask_local_llm(system, text, prefill=True)
-    try:
-        cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
-        return json.loads(cleaned)
-    except Exception:
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except Exception:
-                pass
-        return {"related": True, "simplified": None}  # fail open, keeps normal flow
+    When in doubt, answer false.
+    Respond with exactly one word: true or false. No explanation, no punctuation.
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# B - Decomposed option
-# Cons:
-# 1) Two interactions with the llm instead of one, slower total response
-#
-# Pros:
-# 1) Each function does 1 and only 1 thing
-# 2) check_relation is a simple yes/no, no JSON parsing needed, less room for failure
-# 3) simplify_question only runs when the text is actually related, saving a call
-# 4) Smaller, focused functions, easier to test and maintain individually
+    Examples:
+    Message: "What happens if I terminate early?"
+    Answer: true
 
-# 📝 NOTE - An observation about what check_relation also reveals
-# Local models struggle with generation and complex reasoning, but are solid
-# at simple binary classification. This makes them useful as guard rails
-# (input validation, intent detection, moderation) before spending tokens
-# on the expensive model. check_relation is a concrete example of this.
-def check_relation(text: str) -> bool:
-    system = """The user is chatting with an assistant that has access to a legal
-document (a contract or terms of service). Determine if the user's message is
-asking about that document, its content, or its clauses. This includes
-questions that refer to it indirectly, such as "the document", "this contract",
-"it", or similar. Respond with exactly one word: yes or no.
-No explanation, no punctuation."""
+    Message: "What does clause 3.2 mean?"
+    Answer: true
 
-    raw = ask_local_llm(system, text)
-    return raw.strip().lower().startswith("yes")
+    Message: "8 + 5?"
+    Answer: false
 
-def simplify_question(question: str) -> str:
-    system = """Rewrite the user's question in a direct, objective way.
-Do not lose any information present in the original question.
-Respond with the simplified question only, no explanation, no quotes."""
+    Message: "Tell me about china's history"
+    Answer: false
 
-    result = ask_local_llm(system, question)
-    return result.strip() or question
+    Message: "Why in English can I say 'tell me about china's history' and also 'tell me about history of china'. 
+    Does the 'of' version come from french influence?"
+    Answer: false
+
+    Message: "Hello, how are you?"
+    Answer: false"""
+
+    raw = ask_local_llm_v2(system, text)
+    return raw.strip().lower().startswith("true")
+
 
 # 🤖── LLM calls - actions ────────────────────────────────────────────────────
 def compute_danger_score(chunks: list[str]) -> dict:
@@ -280,11 +277,9 @@ def rag_query(question: str, chunks: list[str], embeddings: list[list[float]], b
     return ask_llm(SYSTEM_CONTRACT, prompt)    
 
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
-    a_legal_question = check_relation(question)
+    a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question)
-
-    q = simplify_question(question)
+        return ask_local_llm_v2("You are a general-purpose assistant. Respond clearly.", question)
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below.
     If the answer is not in the excerpts, say so clearly.
@@ -296,10 +291,10 @@ def answer_question(question: str, chunks: list[str], embeddings: list[list[floa
     <question>
     {question}
     </question>"""
-    return rag_query(q, chunks, embeddings, bm25, template_prompt, top_k=3)
+    return rag_query(question, chunks, embeddings, bm25, template_prompt, top_k=3)
 
 def simplify_clause(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
-    a_legal_question = check_relation(question)
+    a_legal_question = is_legal_question(question)
     if not a_legal_question:
         return "This doesn't appear to be a legal clause. Paste an excerpt from the contract."
 
