@@ -982,7 +982,7 @@ _test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
 
 We're skipping `compute_danger_score` in these tests. It always calls Claude regardless of routing, so there's nothing new to verify there.
 
-Notice that the code contains two `question` examples and two `clause` examples, with one assignment immediately following the other. This is intentional: only the last assignment is executed, while the previous one remains in place as an alternative test case. This makes it easy to switch between different inputs by commenting or uncommenting a single line, without having to rewrite the code each time.
+Notice that the code contains two `question` examples and two `clause` examples. This is intentional: the second assignment overwrites the first, while the earlier one remains as a convenient alternative test case. You can switch between them simply by commenting or uncommenting a line.
 
 
 ---
