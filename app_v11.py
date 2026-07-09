@@ -186,6 +186,7 @@ def is_legal_question(text: str) -> bool:
     raw = ask_local_llm(system, text)
 
     is_legal_question = raw.strip().lower().startswith("true")
+    
     usr_msg = "not a legal question! ❌"
     if is_legal_question:
         usr_msg = "a legal question. Wait for Claude’s answer, please! ✅"
@@ -239,7 +240,7 @@ def rag_query(question: str, chunks: list[str], embeddings: list[list[float]], b
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question) 
+        return ask_local_llm(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below.
     If the answer is not in the excerpts, say so clearly.
@@ -332,18 +333,18 @@ def run_cli_tests():
 
     # 2)
     question = "8 + 5?"
-    question = "What the document is about? Should I be concerned about something? I was wondering"
+    # question = "What the document is about? Should I be concerned about something? I was wondering"
     _test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
 
     # 3) 
     clause = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
     history of china'. Does the 'of' version comes from frensh influence?
     """
-    clause = """3.3 Real Estate Agent Obligations
-Licensed real estate agents must act in the best interest of their client throughout the property
-transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
-transaction without written disclosure and informed consent from both parties. Commission
-structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+#     clause = """3.3 Real Estate Agent Obligations
+# Licensed real estate agents must act in the best interest of their client throughout the property
+# transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+# transaction without written disclosure and informed consent from both parties. Commission
+# structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
     _test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
 
 

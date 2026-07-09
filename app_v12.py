@@ -212,6 +212,7 @@ def is_legal_question(text: str) -> bool:
     raw = ask_local_llm(system, text)
     
     is_legal_question = raw.strip().lower().startswith("true")
+    
     usr_msg = "not a legal question! ❌"
     if is_legal_question:
         usr_msg = "a legal question. Wait for Claude’s answer, please! ✅"
@@ -265,7 +266,7 @@ def rag_query(question: str, chunks: list[str], embeddings: list[list[float]], b
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm_v2("You are a general-purpose assistant. Respond clearly.", question)
+        return ask_local_llm_v2(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below.
     If the answer is not in the excerpts, say so clearly.
