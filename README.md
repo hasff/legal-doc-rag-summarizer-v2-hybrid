@@ -771,9 +771,325 @@ So was all this effort for nothing? Not quite. This mirrors something familiar o
 
 #### ⚡ Quick Navigation: [⬅️ Part 02](#part-2) | [Part 04 ➡️](#part-4)
 
-> 📒 **What you'll learn:** TODO
+> 📒 **What you'll learn:** How to use the local model as a routing guard. Instead of sending every question to Claude, the local model first decides if the question is even a legal one.
 
-TODO: full section, to be written after testing `app_v11.py`. Draft notes: introduces `route_message`, a single JSON call to the local model that both classifies the relation to the document and simplifies the question at once. Marked in code as the "risky option": faster, but asking a 1B model to do two distinct tasks in one JSON response raises the odds of parsing failures and mixed up answers.
+---
+
+### Theory
+
+Sending every single question to Claude works, but it's wasteful. A question like "what's 8 + 5" doesn't need a cloud model with legal reasoning, and a random off-topic message shouldn't cost you an API call either. This is where the local model earns its keep, not as a generator, but as a gatekeeper.
+
+Not every task in this app should always reach for Claude. Some are tied to the document from the first line, so there's nothing to decide, Claude is going to be needed regardless. Others depend entirely on what the user typed, and whether Claude is actually needed becomes a real question.
+
+Having that in mind:
+
+- `1)` `compute_danger_score` never has a choice to make. It reads a sample of the document (in our small test PDF, that ends up being the whole thing) and produces a risk analysis, there's no version of that task a 1B local model could handle. So this one goes for Claude always.
+- `2)` `simplify_clause` and `answer_question` are different. Both start from whatever the user typed, and that input might have nothing to do with the contract at all. Someone could paste a grammar question, or just ask what 8 + 5 is. Sending that straight to Claude is a wasted call.
+
+Both functions in point `2)` need to answer one simple question before doing anything else: is this actually about the legal document? That's a yes or no decision, exactly the kind of task a small local model is reliable at, even one that struggles with generating full answers. This is where `is_legal_question` comes in, acting as a guard before deciding whether Claude is needed at all. We'll look at it in detail next.
+
+There's one more change worth flagging before we get to the code. `ask_local_llm`, the function that talks to Ollama, gets two new parameters in this part, `temperature` and `seed`. They're not part of the routing logic itself, but they matter for testing it properly. More on those when we get to the code.
+
+Enough theory, let's get our hands dirty with the code.
+
+---
+
+### Code walkthrough
+
+> 📄 **File:** `app_v11.py`
+
+**1) `is_legal_question`**
+
+The theory already covered why this function exists, so here's how it's built.
+
+- The `system` prompt does the heavy lifting. It defines the classifier's only job, and it's deliberately strict, with explicit examples of what counts as false, to keep the local model from drifting.
+- `ask_local_llm(system, text)` sends that prompt straight to the local model. No Claude call, no tokens spent, this check is free.
+- The `print` line isn't part of the logic, it's a small pretty-print so you can watch the routing decision happen live in the terminal while testing.
+- The function returns a plain boolean, `true` or `false`. That's the only thing `simplify_clause` and `answer_question` need to make their next move.
+
+```python
+def is_legal_question(text: str) -> bool:
+    system = """You are a strict binary classifier.
+    Task: decide if the user's message is a question about a legal document, contract or terms of service.
+
+    Rule: questions about grammar, language, etymology, word origin, history of a country, science, 
+    math, or any topic that does not mention or imply a legal context are false.
+
+    When in doubt, answer false.
+    Respond with exactly one word: true or false. No explanation, no punctuation."""
+
+    raw = ask_local_llm(system, text)
+    
+    is_legal_question = raw.strip().lower().startswith("true")
+
+    usr_msg = "not a legal question! ❌"
+    if is_legal_question:
+        usr_msg = "a legal question. Wait for Claude's answer, please! ✅"
+    print(f"🤖📍 Local LLM here - it is {usr_msg}")
+
+    return is_legal_question
+```
+
+**2) `compute_danger_score` stays untouched.** As covered in the theory, it always needs a document sample, so routing doesn't apply here.
+
+**3) `simplify_clause` now checks first**
+
+If `is_legal_question` returns false, it returns early with a message. If true, it follows the same path as before, calling Claude.
+
+```python
+def simplify_clause(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+    a_legal_question = is_legal_question(question)
+    if not a_legal_question:
+        return "This doesn't appear to be a legal clause. Paste an excerpt from the contract."
+
+    template_prompt = """Rewrite the following legal clause in plain, simple English....
+```
+
+**4) `answer_question` follows the same pattern**
+
+Same guard, but `answer_question` does something `simplify_clause` doesn't. Instead of returning a hardcoded message when the input isn't about a legal question, it hands the question off to the local model directly, it can still answer plenty of things on its own, just not the legal stuff.
+
+```python
+def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+    a_legal_question = is_legal_question(question)
+    if not a_legal_question:
+        return ask_local_llm(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
+
+    template_prompt = """Answer the user's question based exclusively on the contract excerpts below. ...
+```
+
+**5) `ask_local_llm` gets two new parameters** - *temperature* 🌡️ and *seed* 🌱
+
+```python
+def ask_local_llm(system: str, query: str, prefill= False) -> str:
+
+    print("🤖📍 Local LLM here - happy to answer!")
+
+    msgs = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": query},
+    ]
+
+    response = ollama.chat(
+        model=OLLAMA_MODEL,
+        messages=msgs,
+        format="json" if prefill else None,
+        options={
+            "temperature": 0,   # 🌡️
+            "seed": 42,         # 🌱
+        },        
+    )
+
+    return response["message"]["content"]
+```
+
+
+ 🌡️ **`temperature`**
+
+ Controls how the probabilities are distributed over the next possible tokens. Picture every candidate word arranged around a circle, the closer to the center, the more likely the model thinks it should be picked up. Temperature works like the radius of that circle. At 0, the radius collapses to the center point, the model always grabs the single most likely word. Push it to 0.8 or 1, and the radius grows, pulling in words that are less related and giving them a real shot at being picked.
+
+ ![temperature_seed](assets/part_03/temperature_radios.jpg)
+
+<br>
+
+ 🌱 **`seed`**
+
+ Guarantees that, given those same probabilities, the random draw always picks the same result. Computers can't generate true randomness, they use a formula that looks random but always produces the same sequence if you start it from the same point. That starting point is the seed. When `temperature` is above 0, the model is effectively rolling dice to pick a word from that wider circle, and the seed fixes those dice, so the same run always lands on the same word.
+
+Together, they make Ollama's output reproducible, which matters if you want to compare runs fairly.
+
+<br>
+
+> ⚠️ **One detail worth noting**
+>
+> This only matters when `temperature > 0`. At `temperature = 0` there's no dice to roll, the model just grabs the top word every time, seed or not. We still set both here, `temperature=0` and `seed=42`, since a fixed seed costs nothing and makes the intent explicit for anyone reading the code.
+
+<br>
+
+> 🧪 **What about Claude API?**
+>
+> `temperature` works the same way here, it's a parameter you can set on any Claude API call, from 0.0 to 1.0. At the time of this writing there's no `seed` parameter though, Claude's API has no way to lock the random draw. Worth knowing too, even at `temperature=0` the Claude API doesn't guarantee fully identical outputs across calls, unlike what we saw with Ollama and a fixed seed.
+>
+> ```python
+> # example
+> import anthropic
+> 
+> client = anthropic.Anthropic(api_key=...)
+> 
+> response = client.messages.create(
+>     model="claude-sonnet-4-6",
+>     max_tokens=1024,
+>     temperature=0,
+>     messages=[{"role": "user", "content": "Is this a legal question: what's the capital of France?"}]
+> )
+> 
+> print(response.content[0].text)
+> ```
+
+---
+
+### Test
+
+```python
+file_path = PDFS_DIR / "danger_zone_rag_test.pdf"
+
+pdf_text = extract_text_from_pdf(file_path)
+pdf_text_chunks = chunk_text(pdf_text)
+
+chunks_embeddings = embed_texts(pdf_text_chunks)   
+chunks_tokens = tokenize_texts(pdf_text_chunks)
+bm25 = build_bm25_index(chunks_tokens)    
+
+# 1)
+# _test_compute_danger_score(pdf_text_chunks)
+
+# 2)
+question = "8 + 5?"
+question = "What the document is about? Should I be concerned about something? I was wondering"
+_test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
+
+# 3) 
+clause = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+history of china'. Does the 'of' version comes from frensh influence?
+"""
+clause = """3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+transaction without written disclosure and informed consent from both parties. Commission
+structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+_test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
+```
+
+We're skipping `compute_danger_score` in these tests. It always calls Claude regardless of routing, so there's nothing new to verify there.
+
+Notice that the code contains two `question` examples and two `clause` examples, with one assignment immediately following the other. This is intentional: only the last assignment is executed, while the previous one remains in place as an alternative test case. This makes it easy to switch between different inputs by commenting or uncommenting a single line, without having to rewrite the code each time.
+
+
+---
+
+### Run it
+
+> ⚠️ **Before running this** 🦙
+>
+> Ollama needs to be running in the background. If it's not, you'll get a `ConnectionError`. Fix: open a terminal and run `ollama serve`, or launch the Ollama desktop app, then try again.
+
+<br>
+
+> On macOS / Linux, replace `py` with `python` or `python3`.
+
+```bash
+py app_v11.py
+```
+
+**Test 1: legal input**
+
+```python
+# 2)
+question = "What the document is about? Should I be concerned about something? I was wondering"
+_test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
+
+# 3) 
+clause = """3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+transaction without written disclosure and informed consent from both parties. Commission
+structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+_test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
+```
+
+Output:
+
+```
+🤖📍 Local LLM here - happy to answer!
+🤖📍 Local LLM here - it is a legal question. Wait for Claude's answer, please! ✅
+🤖🌐 Claude here - happy to answer!
+
+===> answer_question
+question: What the document is about? Should I be concerned about something? I was wondering 
+
+answer: # Document Overview
+
+This appears to be a synthetic test document created specifically for testing retrieval
+systems, not a real legal agreement you should rely on...
+
+
+🤖📍 Local LLM here - happy to answer!
+🤖📍 Local LLM here - it is a legal question. Wait for Claude's answer, please! ✅
+🤖🌐 Claude here - happy to answer!
+
+===> simplify_clause
+clause: 3.3 Real Estate Agent Obligations
+...
+```
+
+The local model correctly decided this was a legal question and delegated both calls to Claude.
+
+**Test 2: unrelated input**
+
+```python
+# 2)
+question = "8 + 5?"
+# question = "What the document is about? Should I be concerned about something? I was wondering"
+_test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
+
+# 3) 
+clause = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+history of china'. Does the 'of' version comes from frensh influence?
+"""
+# clause = """3.3 Real Estate Agent Obligations..."""
+_test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
+```
+
+Output:
+
+```
+🤖📍 Local LLM here - happy to answer!
+🤖📍 Local LLM here - it is not a legal question! ❌
+🤖📍 Local LLM here - happy to answer!
+
+===> answer_question
+question: 8 + 5? 
+
+answer: To calculate 8 + 5, I will add the numbers together. 
+
+8 + 5 = 13 
+
+
+🤖📍 Local LLM here - happy to answer!
+🤖📍 Local LLM here - it is not a legal question! ❌
+
+===> simplify_clause
+clause: Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+history of china'. Does the 'of' version comes from frensh influence?
+     
+answer: This doesn't appear to be a legal clause. Paste an excerpt from the contract.
+```
+
+This time the local model correctly identified both inputs as unrelated to legal content, and each function reacted the way it was supposed to.
+
+---
+
+### A quick tool: `test_prompt.py`
+
+After these tests, it's worth introducing `test_prompt.py`. It's a small utility to try different prompts and questions against the local model, without loading the embedding weights or the rest of the RAG pipeline. Faster to run when you just want to experiment.
+
+Make sure Ollama is running, then:
+
+```bash
+py test_prompt.py
+```
+
+---
+
+### Conclusions
+
+> 🚧 Not written yet. This section still needs brainstorming.
+>
+> The main point to cover: before landing on `is_legal_question`, an earlier attempt tried to make the local model shorten and rephrase the user's question inside `answer_question`. That attempt failed, the model tended to invent or insert text that wasn't in the original question. Returning a simple true or false turned out to be far more reliable than asking the local model to generate a rewritten variant. This comparison, and what it says about matching the task to what a small local model is actually good at, belongs here.
+
+---
+
+> 💡 **Curiosity** - TODO
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
