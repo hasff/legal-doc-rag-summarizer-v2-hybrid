@@ -871,7 +871,7 @@ def answer_question(
             query= question
             ) 
 
-    template_prompt = """Answer the user's question based exclusively on the contract excerpts below. ...
+    template_prompt = """Answer the user's question based exclusively on the contract excerpts...
 ```
 
 **5) `ask_local_llm` gets two new parameters** - *temperature* 🌡️ and *seed* 🌱
