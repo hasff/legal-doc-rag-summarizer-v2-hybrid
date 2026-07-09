@@ -812,7 +812,8 @@ The theory already covered why this function exists, so here's how it's built.
 ```python
 def is_legal_question(text: str) -> bool:
     system = """You are a strict binary classifier.
-    Task: decide if the user's message is a question about a legal document, contract or terms of service.
+    Task: decide if the user's message is a question about a legal document, 
+    contract or terms of service.
 
     Rule: questions about grammar, language, etymology, word origin, history of a country, science, 
     math, or any topic that does not mention or imply a legal context are false.
@@ -839,7 +840,12 @@ def is_legal_question(text: str) -> bool:
 If `is_legal_question` returns false, it returns early with a message. If true, it follows the same path as before, calling Claude.
 
 ```python
-def simplify_clause(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+def simplify_clause(
+    question: str, 
+    chunks: list[str], 
+    embeddings: list[list[float]], 
+    bm25: BM25Okapi
+    ) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
         return "This doesn't appear to be a legal clause. Paste an excerpt from the contract."
@@ -852,7 +858,12 @@ def simplify_clause(question: str, chunks: list[str], embeddings: list[list[floa
 Same guard, but `answer_question` does something `simplify_clause` doesn't. Instead of returning a hardcoded message when the input isn't about a legal question, it hands the question off to the local model directly, it can still answer plenty of things on its own, just not the legal stuff.
 
 ```python
-def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+def answer_question(
+    question: str, 
+    chunks: list[str], 
+    embeddings: list[list[float]], 
+    bm25: BM25Okapi
+    ) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
         return ask_local_llm(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
@@ -922,7 +933,9 @@ Together, they make Ollama's output reproducible, which matters if you want to c
 >     model="claude-sonnet-4-6",
 >     max_tokens=1024,
 >     temperature=0,
->     messages=[{"role": "user", "content": "Is this a legal question: what's the capital of France?"}]
+>     messages=[
+>        {"role": "user", "content": "Is this a legal question: what's the capital of France?"}
+>        ]
 > )
 > 
 > print(response.content[0].text)
