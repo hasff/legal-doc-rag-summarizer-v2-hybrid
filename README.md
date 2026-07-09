@@ -413,6 +413,8 @@ pip install ollama
 
 - `ollama` - the Python client used to talk to your local Ollama server.
 
+[⬆️ **`Part 2`**](#part-2)
+
 ---
 
 ### Code walkthrough
@@ -521,6 +523,8 @@ _test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
 ```
 
 Each numbered call tests one of the LLM functions we just saw: the danger score, a free form question, and a clause simplification.
+
+[⬆️ **`Part 2`**](#part-2)
 
 ---
 
@@ -761,8 +765,6 @@ So was all this effort for nothing? Not quite. This mirrors something familiar o
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
-[⬆️ **`Part 2`**](#part-2)
-
 <a name="part-3"></a>
 
 ---
@@ -925,6 +927,8 @@ Together, they make Ollama's output reproducible, which matters if you want to c
 > 
 > print(response.content[0].text)
 > ```
+
+[⬆️ **`Part 3`**](#part-3)
 
 ---
 
@@ -1093,7 +1097,7 @@ py test_prompt.py
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
-[⬆️ **`Part 3`**](#part-3)
+[**`⬆️ Part 3`**](#part-3)
 
 <a name="part-4"></a>
 
