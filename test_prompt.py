@@ -18,7 +18,7 @@ SYSTEM = """You are a strict binary classifier.
     When in doubt, answer false.
     Respond with exactly one word: true or false. No explanation, no punctuation."""
 
-
+# Paste the user text you want to test here
 TEST_CASES = [
     ("8 + 5?"),
     ("What the document is about? Should I be concerned about something? I was wondering"),
