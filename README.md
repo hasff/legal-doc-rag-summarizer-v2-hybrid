@@ -866,7 +866,10 @@ def answer_question(
     ) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
+        return ask_local_llm(
+            system= "You are a general-purpose assistant. Respond clearly.", 
+            query= question
+            ) 
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below. ...
 ```
