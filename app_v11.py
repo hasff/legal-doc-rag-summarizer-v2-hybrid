@@ -184,7 +184,14 @@ def is_legal_question(text: str) -> bool:
     Respond with exactly one word: true or false. No explanation, no punctuation."""
 
     raw = ask_local_llm(system, text)
-    return raw.strip().lower().startswith("true")
+
+    is_legal_question = raw.strip().lower().startswith("true")
+    usr_msg = "not a legal question! ❌"
+    if is_legal_question:
+        usr_msg = "a legal question. Wait for Claude’s answer, please! ✅"
+    print(f"🤖📍 Local LLM here - it is {usr_msg}")
+
+    return is_legal_question
 
 
 # 🤖── LLM calls - actions ────────────────────────────────────────────────────
@@ -232,7 +239,7 @@ def rag_query(question: str, chunks: list[str], embeddings: list[list[float]], b
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question)  
+        return ask_local_llm("You are a general-purpose assistant. Respond clearly.", question) 
 
     template_prompt = """Answer the user's question based exclusively on the contract excerpts below.
     If the answer is not in the excerpts, say so clearly.

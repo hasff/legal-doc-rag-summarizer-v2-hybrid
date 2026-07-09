@@ -210,7 +210,14 @@ def is_legal_question(text: str) -> bool:
     Respond with exactly one word: true or false. No explanation, no punctuation."""
 
     raw = ask_local_llm(system, text)
-    return raw.strip().lower().startswith("true")
+    
+    is_legal_question = raw.strip().lower().startswith("true")
+    usr_msg = "not a legal question! ❌"
+    if is_legal_question:
+        usr_msg = "a legal question. Wait for Claude’s answer, please! ✅"
+    print(f"🤖📍 Local LLM here - it is {usr_msg}")
+
+    return is_legal_question
 
 
 # 🤖── LLM calls - actions ────────────────────────────────────────────────────
