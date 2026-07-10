@@ -209,7 +209,7 @@ def is_legal_question(text: str) -> bool:
     When in doubt, answer false.
     Respond with exactly one word: true or false. No explanation, no punctuation."""
 
-    raw = ask_local_llm(system, text)
+    raw = ask_local_llm_v2(system, text)
     
     is_legal_question = raw.strip().lower().startswith("true")
     
@@ -355,13 +355,17 @@ def run_cli_tests():
 
 
     # 1)
-    _test_compute_danger_score(pdf_text_chunks)
+    # _test_compute_danger_score(pdf_text_chunks)
 
     # 2)
-    question = "What the document is about?"
+    question = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+    history of china'. Does the 'of' version comes from frensh influence?
+    """
+    # question = "What the document is about? Should I be concerned about something? I was wondering"
     _test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
 
     # 3) 
+    # clause = "8 + 5?"
     clause = """3.3 Real Estate Agent Obligations
 Licensed real estate agents must act in the best interest of their client throughout the property
 transaction lifecycle. Agents are prohibited from representing conflicting interests in the same

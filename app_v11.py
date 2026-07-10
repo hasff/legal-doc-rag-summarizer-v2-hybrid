@@ -333,18 +333,18 @@ def run_cli_tests():
 
     # 2)
     question = "8 + 5?"
-    # question = "What the document is about? Should I be concerned about something? I was wondering"
+    question = "What the document is about? Should I be concerned about something? I was wondering"
     _test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
 
     # 3) 
     clause = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
     history of china'. Does the 'of' version comes from frensh influence?
     """
-#     clause = """3.3 Real Estate Agent Obligations
-# Licensed real estate agents must act in the best interest of their client throughout the property
-# transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
-# transaction without written disclosure and informed consent from both parties. Commission
-# structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+    clause = """3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+transaction without written disclosure and informed consent from both parties. Commission
+structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
     _test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
 
 
