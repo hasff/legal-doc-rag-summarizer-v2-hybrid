@@ -1252,9 +1252,11 @@ We replace the old calls in two places:
 ```python
 def is_legal_question(text: str) -> bool:
     system = """You are a strict binary classifier.
-    Task: decide if the user's message is a question about a legal document, contract or terms of service.
+    Task: decide if the user's message is a question about a legal document, 
+    contract or terms of service.
 
-    Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    Rule: questions about grammar, language, etymology, word origin, history of a country, 
+    science, math, or any topic
     that does not mention or imply a legal context are false.
 
     When in doubt, answer false.
@@ -1269,7 +1271,8 @@ def is_legal_question(text: str) -> bool:
 def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
-        return ask_local_llm_v2(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
+        return ask_local_llm_v2(
+            system= "You are a general-purpose assistant. Respond clearly.", query= question) 
 ```
 
 Same logic as before, just running through the new HTTP based function.
