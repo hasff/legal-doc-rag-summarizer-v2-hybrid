@@ -1232,7 +1232,7 @@ A `ChatRequest`, a `ChatResponse`, a `POST`, and a `/api/chat`. Sounds familiar 
 
 Digging a bit further, `_request` calls `_request_raw`, which ends up calling `self._client`, an `httpx` client underneath.
 
-💡 Put together, this is all quite suggestive. The `ollama` Python module is nothing more than a wrapper around the same HTTP call we just wrote by hand in `ask_local_llm_v2`. So why use the module at all? Mostly convenience, it saves you from building the payload and handling the request yourself, and it likely handles a few edge cases more safely.
+💡 Put together, this is all quite suggestive. At its core, Ollama works by running a local HTTP server, that's exactly what `ollama serve` starts, the same command from the note on every "Run it" section. Both the CLI and the Python module are just different ways of talking to that same server, and in the Python module's case, it's talking to it through the exact same HTTP call we just wrote by hand in `ask_local_llm_v2`. So why use the module at all? Mostly convenience, it saves you from building the payload and handling the request yourself, and it likely handles a few edge cases more safely.
 
 Oh, and while we're here, did you spot `OLLAMA_API_KEY`? That's for Ollama's cloud hosted models, available on the [Ollama Models page](https://ollama.com/search) under the "Cloud" tab. Worth a look if you want to try the free tier.
 
@@ -1268,7 +1268,9 @@ def is_legal_question(text: str) -> bool:
 `answer_question`:
 
 ```python
-def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+def answer_question(
+    question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi
+    ) -> str:
     a_legal_question = is_legal_question(question)
     if not a_legal_question:
         return ask_local_llm_v2(
