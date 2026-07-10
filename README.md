@@ -904,7 +904,7 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
 
  Controls how the probabilities are distributed over the next possible tokens. Picture every candidate word arranged around a circle, the closer to the center, the more likely the model thinks it should be picked up. Temperature works like the radius of that circle. At 0, the radius collapses to the center point, the model always grabs the single most likely word. Push it to 0.8 or 1, and the radius grows, pulling in words that are less related and giving them a real shot at being picked.
 
- ![temperature_seed](assets/part_03/temperature_radios_1.png)
+ ![temperature_seed](assets/part_03/temperature_radios_1.jpg)
 
 <br>
 
