@@ -1129,13 +1129,236 @@ With the routing logic in place, next up is a look at the different ways to actu
 
 #### ⚡ Quick Navigation: [⬅️ Part 03](#part-3) | [Part 05 ➡️](#part-5)
 
-> 📒 **What you'll learn:** TODO
+> 📒 **What you'll learn:** a third way to call a local model through Ollama, this time using nothing but a plain HTTP request.
 
-TODO: full section, to be written after testing `app_v12.py`. Draft notes: introduces `check_relation` and `simplify_question` as two separate calls instead of one, the "decomposed option". `check_relation` returns a plain yes/no, no JSON. `simplify_question` only rewrites the question. Slower (two calls) but each function is simpler and more reliable. Key point: small local models are weak at generation but solid at binary classification, which makes them useful as guard rails before spending tokens on the expensive model.
+---
 
-[↑ Back to Table of Contents](#table-of-contents_)
+### Theory
+
+Ollama gives you more than one way to interact with a local model:
+
+1. **Command line.** Type a prompt straight into the terminal. Great for quick checks, not for building an app.
+2. **The `ollama` Python module.** A convenient way to call the model straight from your code, which is what we've used so far.
+3. **A raw HTTP request.** Ollama also runs as a local server, which means we can talk to it directly over HTTP, without installing anything beyond the `requests` library.
+
+That third option is worth exploring on its own. If a plain HTTP request is enough to get an answer from the model, it's worth seeing what that request actually looks like, and what it takes to build it ourselves.
+
+Let's put that into code with a new version of our local model function: `ask_local_llm_v2`.
+
+---
+
+### Code walkthrough
+
+> 📄 **File:** `app_v12.py`
+
+**1) `ask_local_llm_v2`**
+
+We go straight to the point. Import `requests`, build a payload, and POST it to the local Ollama server:
+
+```python
+import requests
+
+...
+
+def ask_local_llm_v2(system: str, query: str, prefill=False) -> str:
+   
+    print("🤖📍 Local LLM here - happy to answer! :: v2")
+
+    msgs = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": query},
+    ]    
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": msgs,
+        "stream": False,
+        "options": {
+            "temperature": 0,
+            "seed": 42,
+        },        
+    }
+    if prefill:
+        payload["format"] = "json"
+
+    response = requests.post("http://localhost:11434/api/chat", json=payload)
+    response.raise_for_status()
+    return response.json()["message"]["content"]
+```
+
+A few notes on the payload:
+
+- `model`: which local model Ollama should use, same as before.
+- `messages`: the same system and user message structure you already know from the `ollama` module.
+- `stream`: set to `False` so we get one complete response instead of a stream of chunks.
+- `options`: the same `temperature` and `seed` values used previously, kept here for reproducibility.
+- `format`: only added when `prefill` is `True`, to force a JSON response.
+
+The URL, `http://localhost:11434/api/chat`, is the address where Ollama's local server listens for requests. This is the endpoint we're now talking to directly.
+
+`response.raise_for_status()` is not strictly required, but it's good practice. It raises an exception if the request failed (for example, a connection error or a bad status code), instead of silently continuing with a broken response.
+
+Finally, `response.json()["message"]["content"]` pulls the actual text out of the response. Ollama wraps the model's reply inside a JSON object, and `message.content` is where the text lives.
+
+---
+
+#### 🕵️ Before continuing, it's worth doing a little investigation on Ollama's Python module 
+
+When we call:
+
+```python
+response = ollama.chat(
+    model=OLLAMA_MODEL,
+    messages=msgs,
+    format="json" if prefill else None,
+    options={
+        "temperature": 0,
+        "seed": 42,
+    },
+)
+```
+
+What actually happens behind that call? 
+
+Let's follow the trail. 
+
+Inside `venv/Lib/site-packages/ollama/_client.py`, we find this:
+
+![_client.py file](assets/part_04/screenshot_ollama_module_1.jpg)
+
+A `ChatRequest`, a `ChatResponse`, a `POST`, and a `/api/chat`. Sounds familiar already.
+
+![_client.py file](assets/part_04/screenshot_ollama_module_2.jpg)
+
+Digging a bit further, `_request` calls `_request_raw`, which ends up calling `self._client`, an `httpx` client underneath.
+
+💡 Put together, this is all quite suggestive. The `ollama` Python module is nothing more than a wrapper around the same HTTP call we just wrote by hand in `ask_local_llm_v2`. So why use the module at all? Mostly convenience, it saves you from building the payload and handling the request yourself, and it likely handles a few edge cases more safely.
+
+Oh, and while we're here, did you spot `OLLAMA_API_KEY`? That's for Ollama's cloud hosted models, available on the [Ollama Models page](https://ollama.com/search) under the "Cloud" tab. Worth a look if you want to try the free tier.
+
+🕵️ Curiosity satisfied. That's enough detective work for now, back to `app_v12.py`.
 
 [⬆️ **`Part 4`**](#part-4)
+
+---
+
+
+**2) Swapping in the new function**
+
+We replace the old calls in two places:
+
+`is_legal_question`:
+
+```python
+def is_legal_question(text: str) -> bool:
+    system = """You are a strict binary classifier.
+    Task: decide if the user's message is a question about a legal document, contract or terms of service.
+
+    Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    that does not mention or imply a legal context are false.
+
+    When in doubt, answer false.
+    Respond with exactly one word: true or false. No explanation, no punctuation."""
+
+    raw = ask_local_llm_v2(system, text)
+```
+
+`answer_question`:
+
+```python
+def answer_question(question: str, chunks: list[str], embeddings: list[list[float]], bm25: BM25Okapi) -> str:
+    a_legal_question = is_legal_question(question)
+    if not a_legal_question:
+        return ask_local_llm_v2(system= "You are a general-purpose assistant. Respond clearly.", query= question) 
+```
+
+Same logic as before, just running through the new HTTP based function.
+
+---
+
+### Run it
+
+> ⚠️ **Before running this** 🦙
+>
+> Ollama needs to be running for this to work. If it's not, you'll get a `ConnectionError`. Fix: run `ollama serve` in a terminal, or open the Ollama desktop app.
+
+The test setup is the same as the previous part:
+
+```python
+file_path = PDFS_DIR / "danger_zone_rag_test.pdf"
+
+pdf_text = extract_text_from_pdf(file_path)
+pdf_text_chunks = chunk_text(pdf_text)
+
+chunks_embeddings = embed_texts(pdf_text_chunks)   
+chunks_tokens = tokenize_texts(pdf_text_chunks)
+bm25 = build_bm25_index(chunks_tokens)    
+
+# 2)
+question = """Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+history of china'. Does the 'of' version comes from frensh influence?
+"""
+_test_answer_question(question, pdf_text_chunks, chunks_embeddings, bm25)
+
+# 3) 
+clause = """3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle. Agents are prohibited from representing conflicting interests in the same
+transaction without written disclosure and informed consent from both parties. Commission
+structures must be disclosed prior to engagement (Disclosure Form: REA-DISC-2024). Agents must"""
+_test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
+```
+
+The first test asks a question with no legal content, so the local model answers it directly. The second asks about a clause from the document, so the local model classifies it as legal and Claude takes over.
+
+Output:
+
+```
+🤖📍 Local LLM here - happy to answer! :: v2
+🤖📍 Local LLM here - it is not a legal question! ❌
+🤖📍 Local LLM here - happy to answer! :: v2
+
+ ===> answer_question
+question: Why in English I can say: 'Tell me about china's history' and also 'tell me about 
+    history of china'. Does the 'of' version comes from frensh influence?
+     
+
+answer: In English, both "about" and "history of" are acceptable ways to ask for information...
+(local model answers directly, no legal context detected)
+
+🤖📍 Local LLM here - happy to answer! :: v2
+🤖📍 Local LLM here - it is a legal question. Wait for Claude's answer, please! ✅
+🤖🌐 Claude here - happy to answer!
+
+ ===> simplify_clause
+clause: 3.3 Real Estate Agent Obligations...
+
+answer: # Plain English Summary of Section 3.3
+...
+(Claude produces the plain English summary of the clause)
+```
+
+Both calls now run through the raw HTTP path instead of the `ollama` module, and everything still works exactly as before.
+
+---
+
+### Conclusions
+
+Three ways to call the same local model, each with its own place:
+
+| Method | Best for | Example call |
+|---|---|---|
+| Command line | Quick manual checks | `ollama run llama3.2:1b` |
+| `ollama` module | Fastest way to start in a script | `ollama.chat(model, messages)` |
+| Raw HTTP request | No dependency, works from any language | `requests.post(url, json=payload)` |
+
+Use whichever fits your project. Now that we know it's just an HTTP endpoint underneath, Part 05 uses that same request from a small HTML and JavaScript page. Let's take a look?
+
+---
+
+> 💡 **Curiosity:** Ollama's local server exposes an OpenAI compatible endpoint too, at `/v1/chat/completions`. That means many tools built for OpenAI's API can point at your local Ollama server with barely any code changes.
+
+[↑ Back to Table of Contents](#table-of-contents_)
 
 <a name="part-5"></a>
 
