@@ -904,7 +904,7 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
 
  Controls how the probabilities are distributed over the next possible tokens. Picture every candidate word arranged around a circle, the closer to the center, the more likely the model thinks it should be picked up. Temperature works like the radius of that circle. At 0, the radius collapses to the center point, the model always grabs the single most likely word. Push it to 0.8 or 1, and the radius grows, pulling in words that are less related and giving them a real shot at being picked.
 
- ![temperature_seed](assets/part_03/temperature_radios.jpg)
+ ![temperature_seed](assets/part_03/temperature_radios_1.png)
 
 <br>
 
@@ -912,13 +912,13 @@ def ask_local_llm(system: str, query: str, prefill= False) -> str:
 
  Guarantees that, given those same probabilities, the random draw always picks the same result. Computers can't generate true randomness, they use a formula that looks random but always produces the same sequence if you start it from the same point. That starting point is the seed. When `temperature` is above 0, the model is effectively rolling dice to pick a word from that wider circle, and the seed fixes those dice, so the same run always lands on the same word.
 
-Together, they make Ollama's output reproducible, which matters if you want to compare runs fairly.
+Together, 🌡️ **`temperature`** and 🌱 **`seed`**, they make Ollama's output reproducible, which matters if you want to compare runs fairly.
 
 <br>
 
-> ⚠️ **One detail worth noting**
+> ⚠️ **One detail worth noting about `seed`**
 >
-> This only matters when `temperature > 0`. At `temperature = 0` there's no dice to roll, the model just grabs the top word every time, seed or not. We still set both here, `temperature=0` and `seed=42`, since a fixed seed costs nothing and makes the intent explicit for anyone reading the code.
+> It only matters when `temperature > 0`. At `temperature = 0` there's no dice to roll, the model just grabs the top word every time, seed or not. We still set both here, `temperature=0` and `seed=42`, since a fixed seed costs nothing and makes the intent explicit for anyone reading the code.
 
 <br>
 
@@ -1091,7 +1091,7 @@ This time the local model correctly identified both inputs as unrelated to legal
 
 ### A quick tool: `test_prompt.py`
 
-After these tests, it's worth introducing `test_prompt.py`. It's a small utility to try different prompts and questions against the local model, without loading the embedding weights or the rest of the RAG pipeline. Faster to run when you just want to experiment.
+After these tests, it's worth introducing `test_prompt.py`. It's a small utility to try different prompts and questions against the local model, without loading the embedding weights or the rest of the app. Faster to run when you just want to experiment.
 
 Make sure Ollama is running, then:
 
@@ -1103,17 +1103,23 @@ py test_prompt.py
 
 ### Conclusions
 
-> 🚧 Not written yet. This section still needs brainstorming.
->
-> The main point to cover: before landing on `is_legal_question`, an earlier attempt tried to make the local model shorten and rephrase the user's question inside `answer_question`. That attempt failed, the model tended to invent or insert text that wasn't in the original question. Returning a simple true or false turned out to be far more reliable than asking the local model to generate a rewritten variant. This comparison, and what it says about matching the task to what a small local model is actually good at, belongs here.
+Before landing on `is_legal_question`, I tried a different approach: have the local model shorten and rephrase the user's question before passing it along, inside a function I called `simplify_question`. You won't find it in the code, it didn't survive, but it's worth explaining why.
+
+The idea was to save tokens by keeping what reaches Claude shorter and cleaner. At this scale it wouldn't make a real difference, but it felt like a strategy worth testing, one that could matter more in a different, larger scale scenario.
+
+In practice, the 1B model kept sabotaging it. It invented details that weren't in the original question, swapped nouns for something close but wrong, or turned a question into a statement entirely. No amount of prompt tweaking fixed it consistently, and testing each variation through the full app, waiting for embeddings to load every time, got slow enough that I ended up building `test_prompt.py` just to iterate faster. That faster loop let me run through more cases quickly, and it didn't take long to see the pattern hold: the model still wasn't reliable at generating text, not even a simple rephrase.
+
+That failure is what pushed me toward `is_legal_question`. Instead of asking the local model to produce anything, I only ask it to decide, true or false. That's a much smaller ask, and this model handled it reliably, unlike the rephrasing task. I can't say small models are inherently bad at generation, a fine tuned one might do fine, but for this model, as is, classification was the task it could actually be trusted with.
+
+It's a small lesson, but one worth carrying forward: match the task to what the model is actually good at, not to what you'd like it to do.
+
+With the routing logic in place, next up is a look at the different ways to actually call Ollama, command line, the Python module, and raw HTTP requests, so you can pick whichever fits your setup.
 
 ---
 
 > 💡 **Curiosity** - TODO
 
 [↑ Back to Table of Contents](#table-of-contents_)
-
-[**`⬆️ Part 3`**](#part-3)
 
 <a name="part-4"></a>
 
