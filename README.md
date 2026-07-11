@@ -1381,7 +1381,7 @@ Use whichever fits your project. Now that we know it's just an HTTP endpoint und
 
 In Part 04 we saw that Ollama exposes a local HTTP server to interact with models, and we called it from Python in three different ways. That HTTP server does not care what language is making the request. Any language capable of sending an HTTP request can talk to your local model.
 
-In this part we build a small demo using JavaScript and HTML, calling Ollama directly from the browser.
+In this part we build a small demo using JavaScript and HTML ([ollama_demo.html](ollama_demo.html)), calling Ollama directly from the browser.
 
 There is one catch. If you open the HTML file directly (double click, `file://` in the address bar), the browser will block the request due to CORS. To avoid that, we serve the page through a local Python web server instead of opening the file directly. This makes the page load from `http://localhost`, which is one of the origins Ollama allows by default.
 
