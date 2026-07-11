@@ -1495,7 +1495,9 @@ async function send() {
 >
 > ![browser console](assets/part_05/screenshot_console.jpg)
 
-> 📝 **Side note:** Part 04 did not use streaming, so this is the first time we deal with it. If you want to see the same "text appearing bit by bit" effect but in the terminal, check `streaming_demo.py`. It shows the same request done two ways in Python: through the `ollama` module, which parses the stream for you, and through raw `requests`, which is closer to what the JavaScript code above does by hand.
+> #### 📝 **Side note:** 
+>
+> Part 04 did not use streaming, so this is the first time we deal with it. If you want to see the same "text appearing bit by bit" effect but in the terminal, check `⭐ streaming_demo.py ⭐`. It shows the same request done two ways in Python: through the `ollama` module, which parses the stream for you, and through raw `requests`, which is closer to what the JavaScript code above does by hand.
 
 ---
 
