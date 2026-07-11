@@ -1091,7 +1091,7 @@ This time the local model correctly identified both inputs as unrelated to legal
 
 ### A quick tool: `test_prompt.py`
 
-After these tests, it's worth introducing `test_prompt.py`. It's a small utility to try different prompts and questions against the local model, without loading the embedding weights or the rest of the app. Faster to run when you just want to experiment.
+After these tests, it's worth introducing [test_prompt.py](test_prompt.py). It's a small utility to try different prompts and questions against the local model, without loading the embedding weights or the rest of the app. Faster to run when you just want to experiment.
 
 Make sure Ollama is running, then:
 
@@ -1107,7 +1107,7 @@ Before landing on `is_legal_question`, I tried a different approach: have the lo
 
 The idea was to save tokens by keeping what reaches Claude shorter and cleaner. At this scale it wouldn't make a real difference, but it felt like a strategy worth testing, one that could matter more in a different, larger scale scenario.
 
-In practice, the 1B model kept sabotaging it. It invented details that weren't in the original question, swapped nouns for something close but wrong, or turned a question into a statement entirely. No amount of prompt tweaking fixed it consistently, and testing each variation through the full app, waiting for embeddings to load every time, got slow enough that I ended up building `test_prompt.py` just to iterate faster. That faster loop let me run through more cases quickly, and it didn't take long to see the pattern hold: the model still wasn't reliable at generating text, not even a simple rephrase.
+In practice, the 1B model kept sabotaging it. It invented details that weren't in the original question, swapped nouns for something close but wrong, or turned a question into a statement entirely. No amount of prompt tweaking fixed it consistently, and testing each variation through the full app, waiting for embeddings to load every time, got slow enough that I ended up building [test_prompt.py](test_prompt.py) just to iterate faster. That faster loop let me run through more cases quickly, and it didn't take long to see the pattern hold: the model still wasn't reliable at generating text, not even a simple rephrase.
 
 That failure is what pushed me toward `is_legal_question`. Instead of asking the local model to produce anything, I only ask it to decide, true or false. That's a much smaller ask, and this model handled it reliably, unlike the rephrasing task. I can't say small models are inherently bad at generation, a fine tuned one might do fine, but for this model, as is, classification was the task it could actually be trusted with.
 
