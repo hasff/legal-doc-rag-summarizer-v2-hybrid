@@ -1497,13 +1497,13 @@ async function send() {
 
 > #### 📝 **Side note:** 
 >
-> Part 04 did not use streaming, so this is the first time we deal with it. If you want to see the same "text appearing bit by bit" effect but in the terminal, check `⭐ streaming_demo.py ⭐`. It shows the same request done two ways in Python: through the `ollama` module, which parses the stream for you, and through raw `requests`, which is closer to what the JavaScript code above does by hand.
+> Part 04 did not use streaming, so this is the first time we deal with it. If you want to see the same "text appearing bit by bit" effect but in the terminal, check [streaming_demo.py](streaming_demo.py). It shows the same request done two ways in Python: through the `ollama` module, which parses the stream for you, and through raw `requests`, which is closer to what the JavaScript code above does by hand.
 
 ---
 
 ### Run it
 
-Because of CORS, you cannot open `ollama_demo.html` directly from disk. Serve it through a local web server instead:
+Because of CORS, you cannot open [ollama_demo.html](ollama_demo.html) directly from disk. Serve it through a local web server instead:
 
 ```bash
 py -m http.server 8000
