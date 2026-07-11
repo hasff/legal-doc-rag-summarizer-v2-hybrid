@@ -1397,9 +1397,9 @@ This page has an input field and a button. When you type a question and click se
 
 A few points worth calling out:
 
-- Unlike the Python calls from Part 04, here there is no library handling the response for you. The response arrives as a stream of raw bytes, and the code reads it chunk by chunk using `response.body.getReader()`.
+- Unlike the Python calls from Part 04, here there is no library handling the response for you. The response arrives as a stream of raw bytes, and the code reads it chunk by chunk using `response.body.getReader() 🏠`.
 - Each chunk is decoded into text and split into lines. Ollama sends one JSON object per line (a format known as NDJSON - Newline Delimited JSON), so each line has to be parsed on its own.
-- Every time a valid chunk with `message.content` is found, it gets appended to the page through a callback `cb_onNewChunk`.
+- Every time a valid chunk with `message.content 👽` is found, it gets appended to the page through a callback `cb_onNewChunk 🍄`.
 
 ```html
 <!DOCTYPE html>
@@ -1424,8 +1424,8 @@ A few points worth calling out:
 
 <p id="output"></p>
 
-<script>
-async function askLocalLLM(system, query, cb_onNewChunk) {
+<script>                                     // 🍄
+async function askLocalLLM(system, query, cb_onNewChunk) {  
   const response = await fetch("http://localhost:11434/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1441,7 +1441,7 @@ async function askLocalLLM(system, query, cb_onNewChunk) {
 
   if (!response.body) throw new Error("No response body");
 
-  const reader = response.body.getReader();
+  const reader = response.body.getReader(); // 🏠
   const decoder = new TextDecoder();
 
   while (true) {
@@ -1457,7 +1457,7 @@ async function askLocalLLM(system, query, cb_onNewChunk) {
 
     for (const line of lines) {
       const json = JSON.parse(line);
-      if (json.message && json.message.content) {
+      if (json.message && json.message.content) { // 👽
         cb_onNewChunk(json.message.content);
       }
     }
@@ -1469,7 +1469,7 @@ async function send() {
   const output = document.getElementById("output");
   output.textContent = "Thinking...";
 
-  try {
+  try {                                                                       // 🍄
     const answer = await askLocalLLM("You are a helpful assistant.", query, cb_onNewChunk = (chunk) => {
       output.textContent += chunk;
     });
