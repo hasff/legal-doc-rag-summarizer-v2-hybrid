@@ -1383,7 +1383,7 @@ In Part 04 we saw that Ollama exposes a local HTTP server to interact with model
 
 In this part we build a small demo using JavaScript and HTML, calling Ollama directly from the browser.
 
-There is one catch. If you open the HTML file directly (double click, `file://` in the address bar), the browser will block the request due to CORS. To avoid that, we serve the page through a local Python web server instead of opening the file directly. This makes the page load from `http://localhost`, matching the origin Ollama expects.
+There is one catch. If you open the HTML file directly (double click, `file://` in the address bar), the browser will block the request due to CORS. To avoid that, we serve the page through a local Python web server instead of opening the file directly. This makes the page load from `http://localhost`, which is one of the origins Ollama allows by default.
 
 ---
 
@@ -1411,7 +1411,9 @@ A few points worth calling out:
   body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
   input { width: 70%; padding: 8px; }
   button { padding: 8px 16px; }
-  p#output { margin-top: 20px; white-space: pre-wrap; border: 1px solid #ccc; padding: 12px; min-height: 40px; }
+  p#output { 
+    margin-top: 20px; white-space: pre-wrap; border: 1px solid #ccc; padding: 12px; min-height: 40px; 
+    }
 </style>
 </head>
 <body>
