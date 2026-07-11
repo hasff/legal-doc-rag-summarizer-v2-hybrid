@@ -1373,13 +1373,157 @@ Use whichever fits your project. Now that we know it's just an HTTP endpoint und
 
 #### ⚡ Quick Navigation: [⬅️ Part 04](#part-4) | [Part 06 ➡️](#part-6)
 
-> 📒 **What you'll learn:** TODO
+> 📒 **What you'll learn:** How to call your local Ollama model from plain JavaScript running in a browser, and why a local web server is needed to make it work.
 
-TODO: full section, to be written after testing `app_v13.py`. Draft notes: replaces the Ollama Python client with plain HTTP requests in `ask_local_llm`. Includes a standalone HTML and JavaScript demo that talks to the local model straight from the browser, served with `python -m http.server 8000` to avoid CORS issues with `file://`.
+---
 
-[↑ Back to Table of Contents](#table-of-contents_)
+### Theory
+
+In Part 04 we saw that Ollama exposes a local HTTP server to interact with models, and we called it from Python in three different ways. That HTTP server does not care what language is making the request. Any language capable of sending an HTTP request can talk to your local model.
+
+In this part we build a small demo using JavaScript and HTML, calling Ollama directly from the browser.
+
+There is one catch. If you open the HTML file directly (double click, `file://` in the address bar), the browser will block the request due to CORS. To avoid that, we serve the page through a local Python web server instead of opening the file directly. This makes the page load from `http://localhost`, matching the origin Ollama expects.
+
+---
+
+### Code walkthrough
+
+> 📄 **File:** `ollama_demo.html`
+
+This page has an input field and a button. When you type a question and click send, it calls `askLocalLLM`, which sends a streaming request to `http://localhost:11434/api/chat`.
+
+![webPage](assets/part_05/screenshot_html.jpg)
+
+A few points worth calling out:
+
+- Unlike the Python calls from Part 04, here there is no library handling the response for you. The response arrives as a stream of raw bytes, and the code reads it chunk by chunk using `response.body.getReader()`.
+- Each chunk is decoded into text and split into lines. Ollama sends one JSON object per line (a format known as NDJSON - Newline Delimited JSON), so each line has to be parsed on its own.
+- Every time a valid chunk with `message.content` is found, it gets appended to the page through a callback `cb_onNewChunk`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ollama Local LLM Demo</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+  input { width: 70%; padding: 8px; }
+  button { padding: 8px 16px; }
+  p#output { margin-top: 20px; white-space: pre-wrap; border: 1px solid #ccc; padding: 12px; min-height: 40px; }
+</style>
+</head>
+<body>
+
+<h2>Ask the local model</h2>
+<input id="userInput" type="text" placeholder="Type your question...">
+<button onclick="send()">Send</button>
+
+<p id="output"></p>
+
+<script>
+async function askLocalLLM(system, query, cb_onNewChunk) {
+  const response = await fetch("http://localhost:11434/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "llama3.2:1b",
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: query },
+      ],
+      stream: true,
+    }),
+  });
+
+  if (!response.body) throw new Error("No response body");
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    console.log("done:", done, "value:", value);
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    console.log("raw chunk:", chunk);
+
+    const lines = chunk.split('\n').filter(line => line.trim() !== "");
+    console.log("parsed lines:", lines);
+
+    for (const line of lines) {
+      const json = JSON.parse(line);
+      if (json.message && json.message.content) {
+        cb_onNewChunk(json.message.content);
+      }
+    }
+  }
+}
+
+async function send() {
+  const query = document.getElementById("userInput").value;
+  const output = document.getElementById("output");
+  output.textContent = "Thinking...";
+
+  try {
+    const answer = await askLocalLLM("You are a helpful assistant.", query, cb_onNewChunk = (chunk) => {
+      output.textContent += chunk;
+    });
+  }
+  catch (err) {
+    output.textContent = "Error: " + err.message + " (is Ollama running on localhost:11434?)";
+  }
+}
+</script>
+
+</body>
+</html>
+```
 
 [⬆️ **`Part 5`**](#part-5)
+
+> 💡 The `console.log` calls are there so you can open your browser's DevTools console and watch the raw stream arrive: 
+> - the byte chunks, 
+> - the decoded text, 
+> - and the parsed NDJSON lines.
+>
+> Nothing to click through, just open the console before sending a question and watch it flow.
+>
+> ![browser console](assets/part_05/screenshot_console.jpg)
+
+> 📝 **Side note:** Part 04 did not use streaming, so this is the first time we deal with it. If you want to see the same "text appearing bit by bit" effect but in the terminal, check `streaming_demo.py`. It shows the same request done two ways in Python: through the `ollama` module, which parses the stream for you, and through raw `requests`, which is closer to what the JavaScript code above does by hand.
+
+---
+
+### Run it
+
+Because of CORS, you cannot open `ollama_demo.html` directly from disk. Serve it through a local web server instead:
+
+```bash
+py -m http.server 8000
+```
+
+Then open your browser at:
+
+```
+http://localhost:8000/ollama_demo.html
+```
+
+---
+
+### Conclusions
+
+Ollama exposing a plain HTTP server means you are not locked into Python, or into any single language, to work with your local models. If it can make an HTTP request, it can talk to Ollama. Here we proved that with a few lines of JavaScript running straight in the browser.
+
+The same idea extends beyond demos. VS Code's Copilot Chat, for example, can use a local Ollama model as its backend, including in agent mode, as long as the model supports tool calling. Under the hood it is the same HTTP server we just talked to from the browser. A nice side effect: your coding assistant, running for free. 💰
+
+---
+
+> 💡 **Curiosity** - NDJSON (newline delimited JSON) is not exclusive to Ollama. It's the same streaming format used by many chat APIs, including some LLM providers, because it lets a client start processing data before the full response has arrived.
+
+[↑ Back to Table of Contents](#table-of-contents_)
 
 <a name="part-6"></a>
 
