@@ -203,7 +203,7 @@ def ask_local_llm_v3_LEGAL_DOCS_CLASSIFIER(query: str, prefill=False) -> str:
     ] 
 
     payload = {
-        "model": "LEGAL_DOCS_CLASSIFIER",
+        "model": "LEGAL_DOCS_CLASSIFIER:latest",
         "messages": msgs,
         "stream": False,      
     }
