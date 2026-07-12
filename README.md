@@ -1537,13 +1537,313 @@ The same idea extends beyond demos. VS Code's Copilot Chat, for example, can use
 
 #### ⚡ Quick Navigation: [⬅️ Part 05](#part-5) | [Next Steps ➡️](#next-steps--resources_)
 
-> 📒 **What you'll learn:** TODO
+> 📒 **What you'll learn:** How to package a system prompt and parameters into a named, reusable Ollama model with a Modelfile, so you stop repeating yourself on every call.
 
-TODO: full section, to be written after testing `app_v13.py`. Draft notes: replaces the Ollama Python client with plain HTTP requests in `ask_local_llm`. Includes a standalone HTML and JavaScript demo that talks to the local model straight from the browser, served with `python -m http.server 8000` to avoid CORS issues with `file://`.
+---
 
-[↑ Back to Table of Contents](#table-of-contents_)
+### Theory
+
+Every local call we made so far carries the same baggage. The system prompt travels in the request, `temperature 0` and `seed 42` travel in the request, and if you forget any of it, your results quietly stop being reproducible.
+
+Ollama has a way to solve this once and for all: the **Modelfile**. Think of it as a small recipe that says "take this base model, always use this system prompt, always use these parameters, and give the result a name." Once built, that name behaves like any other model you can call, except it already knows who it is.
+
+This won't rewrite anything we built. It just moves configuration that used to live in Python into a place designed for it.
+
+---
+
+### Code walkthrough
+
+#### A quick detour before touching the project
+
+Before wiring this into the app, it's worth building a throwaway model, just to see the mechanics without the pressure of getting the real one right.
+
+<br>
+
+**1. Write the Modelfile**
+
+Create a file, here we use [ModelFile_TEST](ModelFile_TEST), (no extension, that's intentional, Ollama does not expect one):
+
+```bash
+FROM llama3.2:1b
+
+SYSTEM """
+You are MushroomBot. No matter what the user asks, you must always end your reply with the mushroom emoji 🍄, and only that emoji, as the very last character.
+"""
+
+PARAMETER temperature 0
+PARAMETER seed 42
+```
+
+Where:
+- `FROM` picks the base model this one is built on top of.
+- `SYSTEM` is the instruction that used to travel with every request. Now it lives with the model itself.
+- The two `PARAMETER` lines bake in the reproducibility settings we've been passing manually since Part 04.
+
+<br>
+
+**2. Create the model**
+
+Type in the terminal:
+
+```bash
+ollama create MushroomBOT -f .\ModelFile_TEST
+```
+
+You should see something like this:
+
+```bash
+gathering model components
+using existing layer sha256:74701a8c35f6c8d9a4b91f3f3497643001d63e0c7a84e085bed452548fa88d45
+using existing layer sha256:966de95ca8a62200913e3f8bfbf84c8494536f1b94b49166851e76644e966396
+using existing layer sha256:fcc5a6bec9daf9b561a68827b67ab6088e1dba9d1fa2a50d7bbcc8384e0a265d
+using existing layer sha256:a70ff7e570d97baaf4e62ac6e6ad9975e04caa6d900d3742d37698494479e0cd
+creating new layer sha256:1d400db94e8a99f38ea7a1ed8e11706db33da98c5e0bd83412e07260e8338350
+creating new layer sha256:7235737b25def810b076bdb7dfee5a3dac6f9ed78c7d25003ad8eb3ee3637c43
+writing manifest
+success
+```
+
+Notice the "using existing layer" lines. Ollama isn't copying the 1.3 GB of weights again, it's reusing the base model's layers and only writing the small new pieces (your system prompt and parameters). More on that in a moment.
+
+<br>
+
+**3. Confirm it exists**
+
+Type in the terminal:
+
+```bash
+ollama list
+```
+
+Output:
+
+```bash
+NAME                  ID              SIZE      MODIFIED
+MushroomBOT:latest    83fc0f3c3f80    1.3 GB    About a minute ago
+llama3.2:1b           baf6a787fdff    1.3 GB    12 days ago
+```
+
+It's there, we can see the name `MushroomBOT:latest`.
+
+<br>
+
+**4. Talk to it**
+
+Type in the terminal:
+
+```bash
+ollama run MushroomBOT
+```
+
+Try yourself asking something:
+
+```bash
+>>> what is the capital of vietnam?
+Hanoi is the capital of Vietnam. 🍄
+
+>>> capital of congo?
+Kinshasa is the capital of the Democratic Republic of Congo. 🍄
+
+>>> /bye
+```
+
+No system prompt in sight, and yet every answer ends in 🍄. It's baked in.
+
+<br>
+
+**5. Look under the hood**
+
+If you type this command: 
+
+```bash
+ollama show MushroomBOT --modelfile
+```
+
+This prints back the full Modelfile Ollama generated for your model, including the template, your `SYSTEM` block, both `PARAMETER` lines, and the base model's license. Two things are worth pointing out:
+
+- The `SYSTEM` and `PARAMETER` values are exactly what you wrote. That's the part you now own.
+- Everything else, the chat template and the license text, comes straight from `llama3.2:1b`. You didn't train a new model, you wrapped an existing one.
+
+That size shown in `ollama list`, 1.3 GB, is misleading if you read it as "a whole new model was copied to disk." It wasn't. Ollama stores model weights as content-addressable layers (those `sha256:...` blobs). `MushroomBOT` reuses the exact same weight layers as `llama3.2:1b` and only adds a tiny new layer for the system prompt and parameters. The 1.3 GB isn't duplicated, it's shared.
+
+<br>
+
+**6. Clean up**
+
+If you want to delete it: 
+
+```bash
+ollama rm MushroomBOT
+```
+
+You should see this output:
+
+```bash
+deleted 'MushroomBOT'
+```
+
+Let's confirm: 
+
+```bash
+ollama list
+```
+
+Output: 
+
+```bash
+NAME           ID              SIZE      MODIFIED
+llama3.2:1b    baf6a787fdff    1.3 GB    12 days ago
+```
+
+Gone, and the base model is untouched.
+
+<br>
 
 [⬆️ **`Part 6`**](#part-6)
+
+#### Now, the real thing
+
+With the mechanics out of the way, let's bake in the one prompt we actually care about: the classifier from Part 03.
+
+**1. Write the Modelfile**
+
+A [ModelFile_LEGAL_DOCS_CLASSIFIER](ModelFile_LEGAL_DOCS_CLASSIFIER) file was created:
+
+```bash
+FROM llama3.2:1b
+
+SYSTEM """You are a strict binary classifier.
+    Task: decide if the user's message is a question about a legal document, contract or terms of service.
+
+    Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    that does not mention or imply a legal context are false.
+
+    When in doubt, answer false.
+    Respond with exactly one word: true or false. No explanation, no punctuation."""
+
+PARAMETER temperature 0
+PARAMETER seed 42
+```
+
+That `SYSTEM` block should look familiar. It's the exact prompt that used to live inside `is_legal_question`.
+
+**2. Create it and confirm**
+
+We have to add it to Ollama: 
+
+```bash
+ollama create LEGAL_DOCS_CLASSIFIER -f .\ModelFile_LEGAL_DOCS_CLASSIFIER
+ollama list
+```
+
+```bash
+NAME                            ID              SIZE      MODIFIED
+LEGAL_DOCS_CLASSIFIER:latest    ffb7f76fbb3c    1.3 GB    4 seconds ago
+llama3.2:1b                     baf6a787fdff    1.3 GB    12 days ago
+```
+
+**3. Wire it into the app**
+
+> 📄 **File:** `app_v13.py`
+
+A new function was created:
+
+```python
+def ask_local_llm_v3_LEGAL_DOCS_CLASSIFIER(query: str, prefill=False) -> str:
+
+    print("🤖📍 Local LLM here - happy to answer! :: v3_LEGAL_DOCS_CLASSIFIER")
+
+    msgs = [
+        {"role": "user", "content": query},
+    ]
+
+    payload = {
+        "model": "LEGAL_DOCS_CLASSIFIER",
+        "messages": msgs,
+        "stream": False,
+    }
+    if prefill:
+        payload["format"] = "json"
+
+    response = requests.post("http://localhost:11434/api/chat", json=payload)
+    response.raise_for_status()
+    return response.json()["message"]["content"]
+```
+
+Compare this to `ask_local_llm_v2` from Part 04. There's no `system` argument, no `options` dict with `temperature` and `seed`. The model name itself, `LEGAL_DOCS_CLASSIFIER`, carries all of that now.
+
+**4. Update `is_legal_question`**
+
+```python
+def is_legal_question(text: str) -> bool:
+    # system = """You are a strict binary classifier.
+    # Task: decide if the user's message is a question about a legal document, contract or terms of service.
+
+    # Rule: questions about grammar, language, etymology, word origin, history of a country, science, math, or any topic
+    # that does not mention or imply a legal context are false.
+
+    # When in doubt, answer false.
+    # Respond with exactly one word: true or false. No explanation, no punctuation."""
+
+    raw = ask_local_llm_v3_LEGAL_DOCS_CLASSIFIER(text)
+
+    is_legal_question = raw.strip().lower().startswith("true")
+
+    usr_msg = "not a legal question! ❌"
+    if is_legal_question:
+        usr_msg = "a legal question. Wait for Claude's answer, please! ✅"
+    print(f"🤖📍 Local LLM here - it is {usr_msg}")
+
+    return is_legal_question
+```
+
+The old system prompt is left in a comment on purpose, not as leftover clutter, but so you can see at a glance what moved and where it went. The function's body barely changed, the responsibility did.
+
+---
+
+### Run it
+
+```bash
+py app_v13.py
+```
+
+```bash
+🤖📍 Local LLM here - happy to answer! :: v3_LEGAL_DOCS_CLASSIFIER
+🤖📍 Local LLM here - it is not a legal question! ❌
+🤖📍 Local LLM here - happy to answer! :: v2
+
+✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️
+ ===> answer_question
+question: Why in English I can say: 'Tell me about china's history' and also 'tell me about
+    history of china'. Does the 'of' version comes from frensh influence?
+
+
+🤖📍 Local LLM here - happy to answer! :: v3_LEGAL_DOCS_CLASSIFIER
+🤖📍 Local LLM here - it is a legal question. Wait for Claude's answer, please! ✅
+🤖🌐 Claude here - happy to answer!
+
+✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️  ✂️
+ ===> simplify_clause
+clause: 3.3 Real Estate Agent Obligations
+Licensed real estate agents must act in the best interest of their client throughout the property
+transaction lifecycle...
+```
+
+Same routing decisions as before, an off topic question stays local and gets rejected, a real clause gets flagged as legal and handed to Claude. The classifier behaves identically. 
+
+---
+
+### Conclusions
+
+The Modelfile doesn't teach the model anything new, and it doesn't change a single classification decision. What it changes is where the configuration lives. The system prompt and the `temperature`/`seed` pair used to be things your Python code had to remember to send correctly, every single call. Now they're part of the model's identity, `LEGAL_DOCS_CLASSIFIER` simply cannot be called without them.
+
+That matters more than it sounds. Back in Part 04, the whole point of setting `temperature 0` and `seed 42` explicitly was reproducibility, comparing three ways of calling Ollama fairly. A Modelfile takes that same guarantee and makes it impossible to forget: there's no call site left where someone could accidentally drop the seed.
+
+---
+
+> 💡 **Curiosity** Ollama's model storage is content-addressable, every layer is named after the SHA256 hash of its own contents. That's why creating `MushroomBOT` or `LEGAL_DOCS_CLASSIFIER` didn't cost another 1.3 GB on disk: the weight layers already existed under their hash, so Ollama just pointed the new model at them and added a small new layer for the system prompt and parameters. Delete the custom model and only that small layer goes with it, the shared weights stay untouched for the next model that needs them.
+
+[↑ Back to Table of Contents](#table-of-contents_)
 
 ---
 
