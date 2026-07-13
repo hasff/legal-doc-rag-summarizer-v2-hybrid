@@ -535,7 +535,8 @@ Each numbered call tests one of the LLM functions we just saw: the danger score,
 > Ollama needs to be running in the background for any code that calls the local model. If it's not, you'll get a `ConnectionError` like this:
 >
 > ```
-> ConnectionError: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+> ConnectionError: Failed to connect to Ollama. Please check that Ollama is downloaded, running 
+and accessible. https://ollama.com/download
 > ```
 >
 > Fix: open a terminal and run `ollama serve`, or just launch the Ollama desktop app, then try again.
