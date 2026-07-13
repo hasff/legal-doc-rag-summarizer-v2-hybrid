@@ -554,7 +554,7 @@ I ran this test file twice: once with `ask_llm` pointing to Claude, then again p
 Claude scored the document a 3, correctly recognizing it as a synthetic test document with no genuinely predatory clauses. <br>
 The local model scored it a 4 and, instead of a summary grounded in the document, returned a generic list of clause types that do not match what danger scoring was asking for.
 
-- Claude
+- Claude 🤖🌐
 ```bash
 Score: 3
 Summary: This is a synthetic test document designed to stress-test RAG systems with intentional 
@@ -579,7 +579,7 @@ enforcement is legally ambiguous and potentially exposes the company to false im
 depending on jurisdiction. 
 ```
 
-- Local model
+- Local model 🤖📍
 ```bash
 Score: 4
 Summary: Most standard commercial contracts should be safe and reasonable. 
@@ -613,7 +613,7 @@ Management Committee.
 
 Claude gave an accurate, well organized answer, correctly identifying the document as a synthetic test file covering data protection, employee transfer, and agent conduct. The local model produced a plausible sounding but inaccurate answer, describing it as a straightforward Data Processing Agreement and missing that it is a synthetic, deliberately ambiguous test document.
 
-- Claude
+- Claude 🤖🌐
 ```bash
 Based on the excerpts provided, this is **a synthetic legal document created for testing 
 purposes** — not a real legal agreement.
@@ -640,7 +640,7 @@ are also references to technical system processes (error codes, audit trails, in
 **Bottom line:** This is not a real binding agreement you would encounter in practice. 
 ```
 
-- Local model
+- Local model 🤖📍
 ```bash
 This contract appears to be a Data Processing Agreement, specifically addressing the 
 processing of personal data by a controller (likely an organization or company) in relation 
@@ -668,7 +668,7 @@ standards in this contract.
 
 Claude rewrote the real estate agent clause clearly and stuck to what was actually in the text. The local model's rewrite drifted: it introduced details not present in the original clause (like contacting banks and lenders) and repeated large chunks of the source text instead of truly simplifying it.
 
-- Claude
+- Claude 🤖🌐
 ```bash
 # Plain English Rewrite
 
@@ -701,7 +701,7 @@ and prioritize your interests over their own. These are standard protections in 
 transactions.
 ```
 
-- Local model
+- Local model 🤖📍
 ```bash
 I've rewritten the clause in plain, simple English, along with additional context where helpful.
 
