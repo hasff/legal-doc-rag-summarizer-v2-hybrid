@@ -1889,15 +1889,15 @@ That matters more than it sounds. Back in Part 04, the whole point of setting `t
 
 ### In this project you built:
 
-TODO: fill in once Parts 03 to 05 are settled.
-
 | | |
 |---|---|
 | ✅ Merged CLI and Streamlit entry point | One file, tested from the terminal and served through a UI |
 | ✅ Local LLM baseline | Called llama3.2:1b directly through Ollama, no routing |
-| ✅ Single call routing | Classification and simplification in one JSON call |
-| ✅ Decomposed routing | Same logic split into two simpler, more reliable calls |
-| ✅ Direct HTTP calls | Talked to Ollama over plain requests, from Python and from the browser |
+| ✅ Single responsibility routing | is_legal_question decides true or false, nothing more |
+| ✅ Isolated prompt testing | test_prompt.py to iterate on prompts without loading the full app |
+| ✅ Three ways to call Ollama | Command line, Python module, and raw HTTP requests |
+| ✅ Browser and terminal streaming | ollama_demo.html and streaming_demo.py, two ways to see tokens arrive |
+| ✅ Custom Modelfile | Packaged system prompt, temperature, and seed into LEGAL_DOCS_CLASSIFIER |
 
 ---
 
