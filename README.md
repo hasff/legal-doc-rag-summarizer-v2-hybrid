@@ -1439,14 +1439,14 @@ async function askLocalLLM(system, query, cb_onNewChunk) {
 
   while (true) {
     const { done, value } = await reader.read();
-    console.log("done:", done, "value:", value);
+    console.log("done:", done, "value:", value);    // ⬅️
     if (done) break;
 
     const chunk = decoder.decode(value, { stream: true }); // 🎃
-    console.log("raw chunk:", chunk);
+    console.log("raw chunk:", chunk);               // ⬅️
 
     const lines = chunk.split('\n').filter(line => line.trim() !== ""); // 🐛
-    console.log("parsed lines:", lines);
+    console.log("parsed lines:", lines);            // ⬅️
 
     for (const line of lines) {
       const json = JSON.parse(line);
@@ -1491,7 +1491,7 @@ A few points worth calling out:
 
 [⬆️ **`Part 5`**](#part-5)
 
-> 💡 The `console.log` calls are there so you can open your browser's DevTools console and watch the raw stream arrive: 
+> 💡 The `console.log ⬅️` calls are there so you can open your browser's DevTools console and watch the raw stream arrive: 
 > - the byte chunks, 
 > - the decoded text, 
 > - and the parsed NDJSON lines.
