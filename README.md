@@ -1586,6 +1586,9 @@ Where:
 - `SYSTEM` is the instruction that used to travel with every request. Now it lives with the model itself.
 - The two `PARAMETER` lines bake in the reproducibility settings we've been passing manually since Part 04.
 
+> ⚠️ Keep in mind we're working with `llama3.2:1b`, one of the smallest models Ollama offers. It's fast and light enough to run on modest hardware, but it's also noticeably fragile. In my own testing, even a single extra newline in the `SYSTEM` prompt was enough to change the model's output. Don't be surprised if small formatting changes here lead to different results on your machine.
+
+
 <br>
 
 **2. Create the model**
