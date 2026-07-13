@@ -756,7 +756,7 @@ jurisdiction or context.
 
 The pattern across all three tests is consistent: the local model is fluent, but not reliable, on generation tasks. It produces confident, well formatted answers that sound right and are wrong or invented in ways that matter for a legal context. It is worth remembering this is a 1B model going up against a far larger, frontier one, so this is not a fair fight.
 
-> 💡 This is not a verdict on small models in general, it is a general purpose 1B model failing at tasks it was never tuned for. A model fine tuned specifically for legal classification or summarization could behave very differently. Small models also have real advantages: they are faster, run on modest hardware, cost less to train and run, and work fully offline. When engineering a solution, it usually depends.
+> 💡 This is not a verdict on small models in general, it is a general purpose 1B model failing at tasks it was never tuned for. A model fine tuned specifically for legal classification or summarization could behave very differently. Small models also have real advantages: they are faster, run on modest hardware, cost less to train and run, and work fully offline.
 
 So was all this effort for nothing? Not quite. This mirrors something familiar outside code: think about calling customer support. Sometimes the first person you reach can solve it. Other times, they just point you to the right specialist. That is exactly the role a small model can still play well, and it is what we build next: a hybrid design where the local model filters and routes, and Claude steps in for the parts that actually need it.
 
