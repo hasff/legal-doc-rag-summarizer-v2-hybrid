@@ -28,8 +28,6 @@ Before you dive in, keep a few things in mind:
 
 This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the pipeline runs locally instead of calling Claude for everything?
 
-TODO: inspiration video credit.
-
 ---
 
 # Key Concepts Demonstrated
@@ -132,7 +130,7 @@ This is also why Part 03 to Part 06 exist: getting that single decision to be fa
 #### ⚡ Quick Navigation: [⬅️ Project Architecture](#project-architecture_) | [Setup ➡️](#setup_)
 
 - Python 3.10+
-- [Ollama](https://ollama.com) installed, with the `llama3.2:1b` model pulled
+- [Ollama](https://ollama.com) installed, with the `llama3.2:1b` model pulled (don't worry if you don't have this yet, Part 02 walks you through installing Ollama and pulling the model)
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
@@ -789,7 +787,7 @@ So was all this effort for nothing? Not quite. This mirrors something familiar o
 
 ---
 
-> 💡 **Curiosity:** TODO
+> 💡 **Curiosity:** llama3.2:1b was trained on roughly 9 trillion tokens, more text than any human could read in several lifetimes, yet it still confidently invented details about a real estate clause it had right in front of it. Parameter count, not training data size, is usually the bottleneck for small models: 1 billion parameters just is not enough room to reliably track what was actually said versus what sounds plausible. That gap between "trained on a lot" and "reasons well" is exactly why Part 03 starts narrowing the local model's job down to something it can actually do reliably.
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
@@ -1145,7 +1143,7 @@ With the routing logic in place, next up is a look at the different ways to actu
 
 ---
 
-> 💡 **Curiosity** - TODO
+> 💡 **Curiosity** - binary classification tasks like `is_legal_question` are exactly the kind of problem that came before large language models even existed. Naive Bayes classifiers were doing true/false style predictions in the 1990s with a fraction of a billion parameters. In a sense, asking a 1B model to say true or false is asking it to do a much older, simpler job than generating fluent text, which is probably why it succeeds here after failing at `simplify_question`.
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
