@@ -8,7 +8,11 @@
 
 ## Picture this
 
-TODO: narrative intro, to be written together. Suggest a short scenario the reader can relate to (a wall of legal text, no easy way through it).
+You built the RAG pipeline. It works. Every question about a contract, every danger score, every simplified clause, goes through Claude, and the answers are good.
+
+Then you imagine this running for real. Not one PDF, hundreds. Not one question, thousands, many of them not even about the document: people testing the chatbot, asking off topic questions, poking at it out of curiosity. Every single one still gets routed to Claude, and every single one costs something.
+
+Most of those questions don't need a frontier model at all. A simple "is this even a legal question" filter could catch them before they go anywhere near the API. That is the whole premise of this sequel: keep Claude for what it's good at, and let something smaller and free handle the gatekeeping.
 
 ![Legal Doc Analyser](assets/intro/screenshot_intro.jpg)
 
@@ -16,9 +20,9 @@ TODO: narrative intro, to be written together. Suggest a short scenario the read
 
 ⚠️ **Heads up**
 
-This is a personal learning project, not an official Anthropic resource.
+This is a personal learning project, built to explore and to teach.
 It may contain errors, simplifications, or opinionated choices made for clarity over correctness.
-Think of it as a **hands on RAG tutorial**: each part builds on the previous one, so you always know why the next step exists.
+Think of it as a **hands on tutorial**: each part builds on the previous one, so you always know why the next step exists.
 
 Before you dive in, keep a few things in mind:
 
