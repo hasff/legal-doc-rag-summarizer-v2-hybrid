@@ -38,8 +38,10 @@ TODO: inspiration video credit.
 <br>✅ Running a local LLM (llama3.2:1b) via Ollama
 <br>✅ Spotting the limits of a small local model on generation tasks
 <br>✅ Single responsibility routing with is_legal_question
+<br>✅ Isolated prompt testing with test_prompt.py
 <br>✅ Calling Ollama three ways: CLI, Python module, raw HTTP
-<br>✅ Calling Ollama directly over HTTP, from Python and from the browser
+<br>✅ Fixing temperature and seed for reproducible comparisons
+<br>✅ Streaming responses to the browser and to the terminal
 <br>✅ Packaging a prompt and parameters into a custom Modelfile
 
 <a name="table-of-contents_"></a>
