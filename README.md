@@ -1912,9 +1912,17 @@ If you find this helpful and feel you learned something new, a ⭐ on the repo i
 
 ## Next Steps & Resources
 
-#### ⚡ Quick Navigation: [⬅️ Part 05](#part-5) | [Get in Touch ➡️](#get-in-touch_)
+#### ⚡ Quick Navigation: [⬅️ Part 06](#part-6) | [Get in Touch ➡️](#get-in-touch_)
 
-TODO: fill in once the rest of the project is done.
+Want to keep going? Here are some other projects that build on similar ideas.
+
+**More tutorials**
+- 🔗 [legal-doc-rag-summarizer](https://github.com/hasff/legal-doc-rag-summarizer) — the v1 project this one builds on, covering chunking, embeddings, BM25, hybrid retrieval, and danger score from scratch
+- 🔗 [mcp-release-notifier](https://github.com/hasff/mcp-release-notifier) — a hands on look at building an MCP server and client
+
+**Other projects**
+- 🔗 [claude-invoice-agent](https://github.com/hasff/claude-invoice-agent) — an agent for invoice processing (no tutorial for this one, just the code)
+
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
