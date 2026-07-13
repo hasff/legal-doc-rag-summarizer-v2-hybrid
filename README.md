@@ -1929,6 +1929,20 @@ Want to keep going? Here are some other projects that build on similar ideas.
 **Other projects**
 - 🔗 [claude-invoice-agent](https://github.com/hasff/claude-invoice-agent) — an agent for invoice processing (no tutorial for this one, just the code)
 
+---
+
+## Where else could a local model fit in?
+
+Throughout this project, `llama3.2:1b` only ever answered one question: is this a legal question or not. That's a deliberately small job for a deliberately small model, chosen to make the local first, Claude when needed pattern easy to follow.
+
+But that same pattern, a fast local model standing between the user and Claude, opens the door to other uses too:
+
+- **Prompt injection gateway** — screening incoming text for suspicious instructions before it ever reaches Claude
+- **Guardrails** — rejecting or rewriting requests that fall outside what the app is meant to do
+- **Sensitive data filtering** — catching and stripping personal or confidential data before it leaves the machine
+- **Access control** — flagging unauthorized attempts to reach parts of the system they shouldn't
+
+None of this was built here, and `llama3.2:1b` is one of the smallest, weakest models Ollama offers. Larger local models, or ones fine tuned for a specific job, would likely do all of this better. The point isn't that this exact setup is production ready, it's that the local plus cloud pattern scales up with better models, not just with more code.
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
@@ -1952,21 +1966,6 @@ Found this useful? Have questions or ideas? I'd love to hear from you either way
 - 📩 **Email:** hugoferro (at) gmail.com
 
 [↑ Back to Table of Contents](#table-of-contents_)
-
----
-
-## Where else could a local model fit in?
-
-Throughout this project, `llama3.2:1b` only ever answered one question: is this a legal question or not. That's a deliberately small job for a deliberately small model, chosen to make the local first, Claude when needed pattern easy to follow.
-
-But that same pattern, a fast local model standing between the user and Claude, opens the door to other uses too:
-
-- **Prompt injection gateway** — screening incoming text for suspicious instructions before it ever reaches Claude
-- **Guardrails** — rejecting or rewriting requests that fall outside what the app is meant to do
-- **Sensitive data filtering** — catching and stripping personal or confidential data before it leaves the machine
-- **Access control** — flagging unauthorized attempts to reach parts of the system they shouldn't
-
-None of this was built here, and `llama3.2:1b` is one of the smallest, weakest models Ollama offers. Larger local models, or ones fine tuned for a specific job, would likely do all of this better. The point isn't that this exact setup is production ready, it's that the local plus cloud pattern scales up with better models, not just with more code.
 
 ---
 
