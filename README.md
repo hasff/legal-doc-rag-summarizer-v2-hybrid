@@ -1596,7 +1596,8 @@ Where:
 Type in the terminal:
 
 ```bash
-ollama create MushroomBOT -f .\ModelFile_TEST
+# ollama create <a_name_at_your_choice> -f <file_path>
+  ollama create MushroomBOT -f .\ModelFile_TEST
 ```
 
 You should see something like this:
