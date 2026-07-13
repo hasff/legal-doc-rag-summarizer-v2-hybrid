@@ -1483,6 +1483,8 @@ A few points worth calling out:
 - Each chunk is decoded `🎃` into text and split `🐛` into lines. Ollama sends one JSON object per line (a format known as NDJSON - Newline Delimited JSON), so each line has to be parsed on its own.
 - Every time a valid chunk with `message.content 👽` is found, it gets appended to the page through a callback `cb_onNewChunk 🍄`.
 
+<br>
+
 ![webPage](assets/part_05/screenshot_html.jpg)
 ***Page Preview***
 
