@@ -536,7 +536,7 @@ Each numbered call tests one of the LLM functions we just saw: the danger score,
 >
 > ```
 > ConnectionError: Failed to connect to Ollama. Please check that Ollama is downloaded, running 
-and accessible. https://ollama.com/download
+> and accessible. https://ollama.com/download
 > ```
 >
 > Fix: open a terminal and run `ollama serve`, or just launch the Ollama desktop app, then try again.
