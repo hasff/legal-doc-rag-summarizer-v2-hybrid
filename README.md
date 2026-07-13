@@ -1514,6 +1514,8 @@ Because of CORS, you cannot open [ollama_demo.html](ollama_demo.html) directly f
 py -m http.server 8000
 ```
 
+⚠️ Make sure your terminal is in the same folder as [ollama_demo.html](ollama_demo.html) before running this command. `http.server` serves files starting from the current working directory, so if the terminal is pointing somewhere else, the page won't be found.
+
 Then open your browser at:
 
 ```
