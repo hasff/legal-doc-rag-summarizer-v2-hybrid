@@ -32,6 +32,8 @@ Before you dive in, keep a few things in mind:
 
 This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the pipeline runs locally instead of calling Claude for everything?
 
+The idea itself came from [this livestream from the Hugging Face team](https://www.youtube.com/live/wRcByxXkJCQ), covering GGUF format, quantization, and running local models with Llama.cpp. Seeing how far open weight models had come on regular hardware is what got me thinking: could a small local model carry part of a pipeline that so far had leaned entirely on Claude?
+
 ---
 
 # Key Concepts Demonstrated
@@ -1938,9 +1940,23 @@ Want to keep going? Here are some other projects that build on similar ideas.
 
 #### ⚡ Quick Navigation: [⬅️ Next Steps & Resources](#next-steps--resources_) | [⬆️ Back to Top](#legal-doc-rag-summarizer-v2-hybrid)
 
+This one took longer than the first project, mostly because the local model kept surprising me in ways I had to actually understand before writing about them, not just patch around. That back and forth, testing, failing, figuring out why, is the part I enjoy most.
+
+Explaining that process clearly, so someone else can skip the confusion I went through, is what keeps me coming back to these tutorials.
+
+This is still something I build on my own time, unpaid, but I'd genuinely like for it to become my actual work: building and teaching things like RAG pipelines, local model routing, and agentic systems. If you're working in this space and looking for someone who does this kind of thing without being asked, I'd love to talk.
+
 Found this useful? Have questions or ideas? I'd love to hear from you either way.
 
 - 🔗 **[LinkedIn](https://www.linkedin.com/in/hugo-ferro-1434b414/)**
 - 📩 **Email:** hugoferro (at) gmail.com
+
+[↑ Back to Table of Contents](#table-of-contents_)
+
+---
+
+
+
+*There is always a smaller, quieter path worth exploring, right alongside the obvious one. Local models won't win every fight against the frontier, but they don't have to. They just have to know their place, and do it well. That's a kind of intelligence too.* 🧠🤖
 
 [↑ Back to Table of Contents](#table-of-contents_)
