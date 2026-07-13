@@ -1394,14 +1394,6 @@ There is one catch. If you open the HTML file directly (double click, `file://` 
 
 This page has an input field and a button. When you type a question and click send, it calls `askLocalLLM`, which sends a streaming request to `http://localhost:11434/api/chat`.
 
-![webPage](assets/part_05/screenshot_html.jpg)
-
-A few points worth calling out:
-
-- Unlike the Python calls from Part 04, here there is no library handling the response for you. The response arrives as a stream of raw bytes, and the code reads it chunk by chunk using `response.body.getReader() 🏠`.
-- Each chunk is decoded `🎃` into text and split `🐛` into lines. Ollama sends one JSON object per line (a format known as NDJSON - Newline Delimited JSON), so each line has to be parsed on its own.
-- Every time a valid chunk with `message.content 👽` is found, it gets appended to the page through a callback `cb_onNewChunk 🍄`.
-
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -1484,6 +1476,16 @@ async function send() {
 </body>
 </html>
 ```
+
+A few points worth calling out:
+
+- Unlike the Python calls from Part 04, here there is no library handling the response for you. The response arrives as a stream of raw bytes, and the code reads it chunk by chunk using `response.body.getReader() 🏠`.
+- Each chunk is decoded `🎃` into text and split `🐛` into lines. Ollama sends one JSON object per line (a format known as NDJSON - Newline Delimited JSON), so each line has to be parsed on its own.
+- Every time a valid chunk with `message.content 👽` is found, it gets appended to the page through a callback `cb_onNewChunk 🍄`.
+
+![webPage](assets/part_05/screenshot_html.jpg)
+***Page Preview***
+
 
 [⬆️ **`Part 5`**](#part-5)
 
