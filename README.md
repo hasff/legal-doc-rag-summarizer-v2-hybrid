@@ -1451,7 +1451,7 @@ async function askLocalLLM(system, query, cb_onNewChunk) {
     for (const line of lines) {
       const json = JSON.parse(line);
       if (json.message && json.message.content) { // 👽
-        cb_onNewChunk(json.message.content);
+        cb_onNewChunk(json.message.content);      // 🍄
       }
     }
   }
