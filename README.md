@@ -80,7 +80,7 @@ You already have a working RAG pipeline (from [legal-doc-rag-summarizer](https:/
 
 **🆕 Starting here?**
 
-Welcome. This project starts from an already working legal document assistant (the app you'll find in Part 01, `app_v9.py`) that gives a danger score, answers questions, and simplifies clauses using Claude. From there, you'll add a local model (llama3.2:1b, via Ollama), compare it against Claude, and end up with a hybrid system: the local model handles quick classification tasks, Claude handles the tasks that need strong reasoning.
+Welcome. This project starts from an already working [legal document assistant](https://github.com/hasff/legal-doc-rag-summarizer) (the app you'll find in Part 01, `app_v9.py`) that gives a danger score, answers questions, and simplifies clauses using Claude. From there, you'll add a local model (llama3.2:1b, via Ollama), compare it against Claude, and end up with a hybrid system: the local model handles quick classification tasks, Claude handles the tasks that need strong reasoning.
 
 <br>
 
