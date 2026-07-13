@@ -96,7 +96,28 @@ Welcome. This project starts from an already working legal document assistant (t
 
 #### ⚡ Quick Navigation: [⬅️ What is this project about?](#what-is-rag_) | [Requirements ➡️](#requirements_)
 
-> TODO
+At its core, this project answers one question for every user message: does this need Claude, or can the local model handle it?
+
+```text
+User question
+     │
+     ▼
+is_legal_question (Ollama, llama3.2:1b)
+     │
+     ├── false → rejected locally, Claude is never called
+     │
+     └── true
+          │
+          ▼
+     RAG retrieval (vector + BM25, combined with RRF)
+          │
+          ▼
+     Claude (danger score / Q&A / clause simplifier)
+```
+
+The local model only ever makes one decision: is this in scope. Everything downstream, retrieval and generation, stays exactly as it was in v1. Claude is still the one reading the document and writing the answer, the local model just decides whether it's worth asking.
+
+This is also why Part 03 to Part 06 exist: getting that single decision to be fast, cheap, and reproducible turns out to need more care than it looks like at first.
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
@@ -183,14 +204,18 @@ legal-doc-rag-summarizer-v2-hybrid/
 ├── README.md
 ├── requirements.txt
 │
-├── app_v9.py           ← Part 01: merging CLI and Streamlit
-├── app_v10.py          ← Part 02: local LLM baseline
-├── app_v11.py          ← Part 03: single call routing (option A)
-├── app_v12.py          ← Part 04: decomposed routing (option B)
-├── app_v13.py          ← Part 05: direct HTTP calls to Ollama
-├── ollama_demo.html    ← Part 05: browser demo
+├── app_v9.py                          ← Part 01: merging CLI and Streamlit
+├── app_v10.py                         ← Part 02: local LLM baseline
+├── app_v11.py                         ← Part 03: check_relation routing guard
+├── test_prompt.py                     ← Part 03: isolated prompt testing
+├── app_v12.py                         ← Part 04: three ways to call Ollama
+├── ollama_demo.html                   ← Part 05: browser demo
+├── streaming_demo.py                  ← Part 05: streaming in Python, two ways
+├── ModelFile_TEST                     ← Part 06: throwaway MushroomBOT model
+├── ModelFile_LEGAL_DOCS_CLASSIFIER    ← Part 06: production classifier model
+├── app_v13.py                         ← Part 06: wiring the classifier model in
 │
-└── tos_docs/           ← place your PDF files here (git ignored)
+└── tos_docs/                          ← place your PDF files here (git ignored)
 ```
 
 [↑ Back to Table of Contents](#table-of-contents_)
