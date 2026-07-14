@@ -244,7 +244,8 @@ legal-doc-rag-summarizer-v2-hybrid/
 If you came from the first tutorial, you had `app_v7.py`, which had a `__main__` block for testing, and `app_v8.py`, which wrapped everything in a Streamlit UI without that test block. `app_v9.py` merges the two: one file that can run as a CLI test, or as a Streamlit app, depending on how it is launched.
 
 **🆕 Starting here?** <br>
-If you are new here: this app answers questions about a legal document, gives it a danger score, and rewrites confusing clauses in plain English. Part 01 is about the plumbing that lets you test that logic from the terminal and serve it through a Streamlit App, without duplicating code.
+If you are new here: this app answers questions about a legal document, gives it a danger score, and rewrites confusing clauses in plain English. All examples in this project use a synthetic Terms of Service document, [danger_zone_rag_test.pdf](tos_docs/danger_zone_rag_test.pdf), built on purpose to be an edge case, packed with ambiguous clauses and tricky wording to stress test the LLM, so you can follow along without needing a real legal file. Part 01 is about the plumbing that lets you test that logic from the terminal and serve it through a Streamlit App, without duplicating code.
+
 
 > 💡 Why one file instead of a separate `rag_core.py` module? More on that in the Code Walkthrough below.
 
