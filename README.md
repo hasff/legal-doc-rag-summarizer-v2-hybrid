@@ -32,7 +32,7 @@ Before you dive in, keep a few things in mind:
 
 This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when some of the work is handled locally instead of calling Claude for everything?
 
-The idea itself came from [this livestream from the Hugging Face team](https://www.youtube.com/live/wRcByxXkJCQ), covering GGUF format, quantization, and running local models with Llama.cpp. Seeing how far open weight models had come on regular hardware is what got me thinking: could a small local model carry part of an app that so far had leaned entirely on Claude?
+The idea itself came from [this livestream from the Hugging Face team](https://www.youtube.com/live/wRcByxXkJCQ), covering GGUF format, quantization, and running local models with Llama.cpp. Seeing how far open weight models had come on regular hardware is what got me thinking: could a small local model carry part of the work that so far had leaned entirely on Claude?
 
 ---
 
