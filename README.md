@@ -1559,6 +1559,8 @@ Then open your browser at:
 http://localhost:8000/ollama_demo.html
 ```
 
+> 💡 To stop the server when you're done, go back to the terminal and press `Ctrl + C`.
+
 ---
 
 ### Conclusions
