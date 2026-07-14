@@ -8,7 +8,7 @@
 
 ## Picture this
 
-You built the RAG pipeline. It works. Every question about a contract, every danger score, every simplified clause, goes through Claude, and the answers are good.
+You built a RAG app. It works. Every question about a contract, every danger score, every simplified clause, goes through Claude, and the answers are good.
 
 Then you imagine this running for real. Not one PDF, hundreds. Not one question, thousands, many of them not even about the document: people testing the chatbot, asking off topic questions, poking at it out of curiosity. Every single one still gets routed to Claude, and every single one costs something.
 
@@ -30,9 +30,9 @@ Before you dive in, keep a few things in mind:
 2. **Not production ready:** this project was built to learn and teach. It has not been tested or hardened for production use.
 3. **Built with AI Assistance:** this README was written with AI help, mainly for English refinement. The architecture, curriculum, and all technical decisions are my own.
 
-This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the pipeline runs locally instead of calling Claude for everything?
+This project is a sequel to [legal doc rag summarizer](https://github.com/hasff/legal-doc-rag-summarizer), which covered the fundamentals: chunking, embeddings, BM25, hybrid retrieval, danger score, and a Streamlit wrap up. This v2 picks up where that one left off and asks a new question: what happens when part of the app runs locally instead of calling Claude for everything?
 
-The idea itself came from [this livestream from the Hugging Face team](https://www.youtube.com/live/wRcByxXkJCQ), covering GGUF format, quantization, and running local models with Llama.cpp. Seeing how far open weight models had come on regular hardware is what got me thinking: could a small local model carry part of a pipeline that so far had leaned entirely on Claude?
+The idea itself came from [this livestream from the Hugging Face team](https://www.youtube.com/live/wRcByxXkJCQ), covering GGUF format, quantization, and running local models with Llama.cpp. Seeing how far open weight models had come on regular hardware is what got me thinking: could a small local model carry part of an app that so far had leaned entirely on Claude?
 
 ---
 
@@ -80,7 +80,7 @@ This project has two audiences in mind.
 
 **🔁 Coming from v1?**
 
-You already have a working RAG pipeline (from [legal-doc-rag-summarizer](https://github.com/hasff/legal-doc-rag-summarizer)) that extracts text from a PDF, chunks it, searches it with vector and BM25 retrieval, and uses Claude for a danger score, a Q&A flow, and a clause simplifier. This sequel takes that pipeline and asks: 
+You already have a working RAG app (from [legal-doc-rag-summarizer](https://github.com/hasff/legal-doc-rag-summarizer)) that extracts text from a PDF, chunks it, searches it with vector and BM25 retrieval, and uses Claude for a danger score, a Q&A flow, and a clause simplifier. This sequel takes that app and asks: 
 - Could part of this run on a small local model instead, and where does that stop making sense?
 
 
