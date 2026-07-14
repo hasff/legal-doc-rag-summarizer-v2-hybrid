@@ -477,7 +477,7 @@ def ask_local_llm(system: str, query: str, prefill=False) -> str:
     response = ollama.chat(
         model=OLLAMA_MODEL,
         messages=msgs,
-        format="json" if prefill else None, # 🎯
+        format="json" if prefill else None, # 👈🎯
     )
     return response["message"]["content"]
 ```
@@ -495,7 +495,7 @@ This function uses the `ollama` module instead of the Claude SDK. It also forces
 >   # put words in claude's mouth
 >   # to force claude to return json since it "thinks" it already started writing json
 >   if prefill:
->       msgs.append({"role": "assistant", "content": "{"}) # 🏹
+>       msgs.append({"role": "assistant", "content": "{"}) # 👈🏹
 > ```
 
 <br>
