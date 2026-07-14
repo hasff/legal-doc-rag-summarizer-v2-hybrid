@@ -26,7 +26,7 @@ Think of it as a **hands on tutorial**: each part builds on the previous one, so
 
 Before you dive in, keep a few things in mind:
 
-1. **Fast Paced AI Evolution:** the AI landscape moves fast. Specific libraries or model names may change, but the RAG concepts taught here stay relevant.
+1. **Fast Paced AI Evolution:** the AI landscape moves fast. Specific libraries or model names may change, but the hybrid routing concepts taught here stay relevant.
 2. **Not production ready:** this project was built to learn and teach. It has not been tested or hardened for production use.
 3. **Built with AI Assistance:** this README was written with AI help, mainly for English refinement. The architecture, curriculum, and all technical decisions are my own.
 
