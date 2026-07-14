@@ -1320,6 +1320,10 @@ Same logic as before, just running through the new HTTP based function.
 >
 > Ollama needs to be running for this to work. If it's not, you'll get a `ConnectionError`. Fix: run `ollama serve` in a terminal, or open the Ollama desktop app.
 
+```bash
+py app_v12.py
+```
+
 The test setup is the same as the previous part:
 
 ```python
@@ -1348,6 +1352,7 @@ _test_simplify_clause(clause, pdf_text_chunks, chunks_embeddings, bm25)
 ```
 
 The first test asks a question with no legal content, so the local model answers it directly. The second asks about a clause from the document, so the local model classifies it as legal and Claude takes over.
+
 
 Output:
 
