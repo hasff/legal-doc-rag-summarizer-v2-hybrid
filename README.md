@@ -1,5 +1,7 @@
 # legal-doc-rag-summarizer-v2-hybrid
 
+[![Sponsor hasff](https://img.shields.io/badge/Sponsor-hasff-brightgreen?logo=github-sponsors)](https://github.com/sponsors/hasff)
+
 > A hands on RAG tutorial for legal document analysis: this time going hybrid, pairing a local LLM with Claude.
 
 🗓️ **Status: July 2026**
