@@ -1,6 +1,7 @@
 # legal-doc-rag-summarizer-v2-hybrid
 
 [![Sponsor hasff](https://img.shields.io/badge/Sponsor-hasff-brightgreen?logo=github-sponsors)](https://github.com/sponsors/hasff)
+[![Portfolio](https://img.shields.io/badge/Portfolio-AI%2FML%20Projects-blue?logo=github)](https://hasff.github.io/my-ai-portfolio/)
 
 > A hands on RAG tutorial for legal document analysis: this time going hybrid, pairing a local LLM with Claude.
 
@@ -1974,6 +1975,7 @@ Found this useful? Have questions or ideas? I'd love to hear from you either way
 
 - 🔗 **[LinkedIn](https://www.linkedin.com/in/hugo-ferro-1434b414/)**
 - 📩 **Email:** hugoferro (at) gmail.com
+- 🗂️ **Portfolio:** [more AI/ML projects like this one](https://hasff.github.io/my-ai-portfolio/)
 
 [↑ Back to Table of Contents](#table-of-contents_)
 
